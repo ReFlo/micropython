@@ -61,3 +61,4 @@ ports/tm4c123/\.settings/language\.settings\.xml
 
 ports/tm4c123/micropython\.code-workspace
 ports/tm4c123/tivaware
+ports/tm4c123/TM4C123GH6PM.svd.xml

@@ -40,11 +40,13 @@
    
 ### Windows
 
-1. Install ARM toolchain from https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads  
+1. Install [MinGW]( https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download)  
+      **Make sure it is added to your PATH**  
+   **OR** install [WSL](https://docs.microsoft.com/de-de/windows/wsl/install-win10#manual-installation-steps) and then continue with [the Steps for Ubuntu](#ubuntu)
+2. Install [ARM toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)  
       **Make sure it is added to your PATH**
-2. Install GNU Make Tools Setup http://gnuwin32.sourceforge.net/packages/make.htm  
-      **Make sure it is added to your PATH**
-3. Download and install TivaWare https://www.ti.com/tool/SW-TM4C 
+
+3. Download and install [TivaWare](https://www.ti.com/tool/SW-TM4C)  
 4. Clone git repo and checkout branch `tiva_from_stable`
 5. Build:
    ```bash

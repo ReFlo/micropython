@@ -35,6 +35,7 @@
 #define MICROPY_HW_MAX_UART (8)
 #define MICROPY_HW_MAX_SPI (4)
 #define MICROPY_HW_MAX_I2C (4)
+#define MICROPY_HW_MAX_TIMER (6)
 
 #define MICROPY_PY_MACHINE_SPI (0)
 
