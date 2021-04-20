@@ -30,6 +30,38 @@
 #include "driverlib/timer.h"
 #include "inc/hw_timer.h"
 
+/*
+Timer ID Enum
+*/
+typedef enum {
+    TIMER_NONE =6,
+    TIMER_0,
+    TIMER_1,
+    TIMER_2,
+    TIMER_3,
+    TIMER_4,
+    TIMER_5,
+    W_TIMER_0,
+    W_TIMER_1,
+    W_TIMER_2,
+    W_TIMER_3,
+    W_TIMER_4,
+    W_TIMER_5
+} timer_id_t;
+
+
+/*
+Timer Mode Enum
+*/
+
+typedef enum{
+    ONE_SHOT,
+    PERIODIC,
+    RTC,
+    IECM,           // Input Edge Count Mode
+    IETM,           // Input Edge Time Mode
+    PWM,            // Pulse With Modulation
+}timer_mode_t;
 /**
  *  Timer register struct for easy access 
  *  for register description, see datasheet
