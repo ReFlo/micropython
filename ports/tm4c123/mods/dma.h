@@ -24,8 +24,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_STM32_DMA_H
-#define MICROPY_INCLUDED_STM32_DMA_H
+#ifndef MICROPY_INCLUDED_TM4C_DMA_H
+#define MICROPY_INCLUDED_TM4C_DMA_H
 
 typedef struct _dma_descr_t dma_descr_t;
 
@@ -93,4 +93,4 @@ void dma_hw_init();
 void spi_dma_rx(uint32_t ui32ChannelStructIndex, const uint8_t *pvSrcAddr, uint16_t *pvDstAddr, size_t bits, size_t len);
 void spi_dma_tx(uint32_t ui32ChannelStructIndex, const uint16_t *pvSrcAddr, uint8_t *pvDstAddr, size_t bits, size_t len);
 
-#endif // MICROPY_INCLUDED_STM32_DMA_H
+#endif // MICROPY_INCLUDED_TM4C_DMA_H

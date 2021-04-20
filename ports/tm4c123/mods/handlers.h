@@ -25,8 +25,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_STM32_STM32_IT_H
-#define MICROPY_INCLUDED_STM32_STM32_IT_H
+#ifndef MICROPY_INCLUDED_TM4C_STM32_IT_H
+#define MICROPY_INCLUDED_TM4C_STM32_IT_H
 
 /**
   ******************************************************************************
@@ -89,4 +89,4 @@ void GPIOF_Handler(void);
 void GPIOG_Handler(void);
 void GPIOH_Handler(void);
 
-#endif // MICROPY_INCLUDED_STM32_STM32_IT_H
+#endif // MICROPY_INCLUDED_TM4C_STM32_IT_H

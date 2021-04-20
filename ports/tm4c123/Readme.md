@@ -21,7 +21,7 @@
 
 ## Build
 ### Ubuntu
-   Works for Ubuntu / Debian / WSL
+   Works for Ubuntu / Debian
 1. Clone git repo:
    ```bash
    cd <your target directory>
@@ -42,18 +42,18 @@
 
 1. Install [MinGW]( https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download)  
       **Make sure it is added to your PATH**  
-   **OR** install [WSL](https://docs.microsoft.com/de-de/windows/wsl/install-win10#manual-installation-steps) and then continue with [the Steps for Ubuntu](#ubuntu)
+   **OR** install [WSL](https://docs.microsoft.com/de-de/windows/wsl/install-win10#manual-installation-steps)
 2. Install [ARM toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)  
       **Make sure it is added to your PATH**
-
-3. Download and install [TivaWare](https://www.ti.com/tool/SW-TM4C)  
-4. Clone git repo and checkout branch `tiva_from_stable`
-5. Build:
+3. Clone git repo and checkout branch `tiva_from_stable`
+4. Download and install [TivaWare](https://www.ti.com/tool/SW-TM4C) or extract contents to `micropython/ports/tm4c123/tivaware`  
+   **OR** if you are using WSL, do Step 2 of [Ubuntu Instructions](#ubuntu)  
+5. Build using WSL or MinGW terminal:
    ```bash
    cd ./ports/tm4c123
-   make TIVAWARE_LIB="C:\ti\TivaWare_2.2.0.XXX" 
+   make
    ```
-   Replace `"C:\ti\TivaWare_2.2.0.XXX" ` with the path you chose during TivaWare installation
+   Use param `TIVAWARE_LIB="C:\ti\TivaWare_2.2.0.XXX" ` with make if you installed TivaWare
    
 ## Flashing
 
@@ -94,9 +94,9 @@
    - repeat for other device
    
 3. Install OpenOCD
-   - Windows: https://gnutoolchains.com/arm-eabi/openocd/  
+   - Windows/WSL: https://gnutoolchains.com/arm-eabi/openocd/  
       **Add it to your PATH**
-   - Ubuntu / Debian: `sudo apt install openocd`
+   - Ubuntu/Debian: `sudo apt install openocd`
    
 4. In VSCode debugging menu, click new config and replace contents of your `launch.json` with this:
    ```json
