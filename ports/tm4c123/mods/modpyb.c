@@ -41,7 +41,7 @@
 #include "systick.h"
 // #include "led.h"
 #include "pin.h"
-// #include "timer.h"
+#include "timer.h"
 #include "extint.h"
 // #include "usrsw.h"
 // #include "rng.h"

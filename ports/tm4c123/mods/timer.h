@@ -34,7 +34,6 @@
 Timer ID Enum
 */
 typedef enum {
-    TIMER_NONE =6,
     TIMER_0,
     TIMER_1,
     TIMER_2,
@@ -46,7 +45,8 @@ typedef enum {
     W_TIMER_2,
     W_TIMER_3,
     W_TIMER_4,
-    W_TIMER_5
+    W_TIMER_5,
+    TIMER_NONE
 } timer_id_t;
 
 
@@ -54,14 +54,14 @@ typedef enum {
 Timer Mode Enum
 */
 
-typedef enum{
-    ONE_SHOT,
-    PERIODIC,
-    RTC,
-    IECM,           // Input Edge Count Mode
-    IETM,           // Input Edge Time Mode
-    PWM,            // Pulse With Modulation
-}timer_mode_t;
+// typedef enum{
+//     ONE_SHOT,
+//     PERIODIC,
+//     RTC,
+//     IECM,           // Input Edge Count Mode
+//     IETM,           // Input Edge Time Mode
+//     PWM,            // Pulse With Modulation
+// }timer_mode_t;
 
 
 /**
@@ -102,22 +102,21 @@ typedef struct  {
 } periph_timer_t;
 
 
-typedef struct _machine_hard_timer_obj_t {
+typedef struct _machine_timer_obj_t {
     mp_obj_base_t base;
     uint32_t timer_base;          // base address of timer module
     uint32_t periph;                // Timer A or B
     periph_timer_t* regs;         // register access struct pointer (usage: spi_obj.regs->DR)
-    timer_id_t timer_id : 3;        // Timer Id 0..5, for identification purposes
-    uint8_t width : 1;           // Timer with 16/32 or 32/64 Bit Mode
+    timer_id_t timer_id;        // Timer Id 0..5, for identification purposes
+    uint8_t width;           // Timer with 16/32 or 32/64 Bit Mode
     uint32_t prescale;          // Timer Prescaler value
     uint32_t frequency;         // Frequency of Timer
     mp_obj_t callback;          // callback function
-    IRQn_Type irqn;
-} machine_hard_timer_obj_t;
+} machine_timer_obj_t;
 
 //extern TIM_HandleTypeDef TIM5_Handle;
 
-extern const mp_obj_type_t pyb_timer_type;
+extern const mp_obj_type_t machine_timer_type;
 
 //void timer_init0(void);
 //void timer_tim5_init(void);

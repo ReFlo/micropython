@@ -200,6 +200,7 @@ SRC_MOD = $(addprefix mods/,\
 	i2c.c \
 	dma.c \
 	extint.c \
+	timer.c\
 	)
 
 	# modpyb.c \
