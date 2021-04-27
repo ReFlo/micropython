@@ -33,6 +33,8 @@
 #include "timer.h"
 #include "pin.h"
 #include "driverlib/timer.h"
+#include "inc/hw_memmap.h"
+#include "py/mphal.h"
 
 
 /// \moduleref pyb
@@ -81,64 +83,72 @@
  * constructor for TIMER!!!!!!! object
  */
 
-/*STATIC void machine_timer_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-    
-    mp_printf(print, "Laft");
-}*/
+STATIC mp_obj_t machine_timer_print(mp_obj_t self_in) 
+{
+    mp_hal_stdout_tx_strn("lafft\n\r", 8);
+    // return MP_OBJ_NEW_SMALL_INT(42);
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_1(machine_timer_print_obj, machine_timer_print);
 
 
-STATIC void init_timer(mp_obj_t self_in){
-     machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
-     self->timer_base = TIMER0_BASE;
-     self->periph = SYSCTL_PERIPH_TIMER0;
-     self->regs = (periph_timer_t*)TIMER0_BASE;
-     self->timer_id = 0;
-    SysCtlPeripheralEnable(self->periph);
-    while(!SysCtlPeripheralReady(self->periph));
-    TimerDisable(self->timer_base,TIMER_A);
-    TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
-    TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
-    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
-    TimerEnable(self->timer_base, TIMER_A); 
-    IntEnable(INT_TIMER0A); 
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
+// Beispiel um Funktionen direkt fürs Paket zu hinterlegen
+STATIC mp_obj_t py_subsystem_info(void) {
+    return MP_OBJ_NEW_SMALL_INT(42);
+}
+MP_DEFINE_CONST_FUN_OBJ_0(subsystem_info_obj, py_subsystem_info);
+
+
+// STATIC void init_timer(mp_obj_t self_in){
+//      machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
+//      self->timer_base = TIMER0_BASE;
+//      self->periph = SYSCTL_PERIPH_TIMER0;
+//      self->regs = (periph_timer_t*)TIMER0_BASE;
+//      self->timer_id = 0;
+//     SysCtlPeripheralEnable(self->periph);
+//     while(!SysCtlPeripheralReady(self->periph));
+//     TimerDisable(self->timer_base,TIMER_A);
+//     TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
+//     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
+//     TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
+//     TimerEnable(self->timer_base, TIMER_A); 
+//     IntEnable(INT_TIMER0A); 
+//     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
+// }
+
+// void Timer0Isr(){
+//     TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+//     mp_hal_stdout_tx_strn("Timer works!!\n", 5);
 // }
 
 
-}
-
-void Timer0Isr(){
-    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-    printf("Timer works bitch!!\n");
-
-}
-
+// Create new Timer object
 mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
 
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
     
-
     // create dynamic peripheral object
     machine_timer_obj_t *self;
     self=  m_new0(machine_timer_obj_t, 1);
-    // mp_print_str("done");
-    init_timer(self);
+    self->base.type = &machine_timer_type;
+    mp_hal_stdout_tx_strn("lafft\n\r", 8);
+    // init_timer(self);
     return MP_OBJ_FROM_PTR(self);
 
 }
 
 STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
-    {MP_ROM_QSTR(MP_QSTR_init), MP_ROM_INT(100),}
+      { MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&subsystem_info_obj) },
+      { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&machine_timer_print_obj) },
     };
 
 STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict_table);
 
 const mp_obj_type_t machine_timer_type = {
     { &mp_type_type },
-    .name = MP_QSTR_TIMER,
-    //.print = machine_timer_print,
+    .name = MP_QSTR_Timer,
+    // .print = machine_timer_print,
     .make_new = machine_timer_make_new,
-    // .protocol = &machine_hard_spi_p,
     .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
     };
