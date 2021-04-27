@@ -30,6 +30,11 @@
 #include "driverlib/timer.h"
 #include "inc/hw_timer.h"
 
+
+#define TIMER_A                 0x000000ff  // Timer A
+#define TIMER_B                 0x0000ff00  // Timer B
+#define TIMER_BOTH              0x0000ffff  // Timer Both
+
 /*
 Timer ID Enum
 */
@@ -105,7 +110,7 @@ typedef struct  {
 typedef struct _machine_timer_obj_t {
     mp_obj_base_t base;
     uint32_t timer_base;          // base address of timer module
-    uint32_t periph;                // Timer A or B
+    uint32_t periph;                // address needed for tivaware sysctl functions
     periph_timer_t* regs;         // register access struct pointer (usage: spi_obj.regs->DR)
     timer_id_t timer_id;        // Timer Id 0..5, for identification purposes
     uint8_t width;           // Timer with 16/32 or 32/64 Bit Mode
@@ -117,7 +122,7 @@ typedef struct _machine_timer_obj_t {
 //extern TIM_HandleTypeDef TIM5_Handle;
 
 extern const mp_obj_type_t machine_timer_type;
-
+void Timer0Isr(void);
 //void timer_init0(void);
 //void timer_tim5_init(void);
 //TIM_HandleTypeDef *timer_tim6_init(uint freq);

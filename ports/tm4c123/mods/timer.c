@@ -88,25 +88,50 @@
 /**
  * constructor for TIMER!!!!!!! object
  */
-STATIC void machine_timer_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+
+/*STATIC void machine_timer_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     
     mp_printf(print, "Laft");
+}*/
+
+
+STATIC void init_timer(mp_obj_t self_in){
+     machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
+     self->timer_base = TIMER0_BASE;
+     self->periph = SYSCTL_PERIPH_TIMER0;
+     self->regs = (periph_timer_t*)TIMER0_BASE;
+     self->timer_id = 0;
+    SysCtlPeripheralEnable(self->periph);
+    while(!SysCtlPeripheralReady(self->periph));
+    TimerDisable(self->timer_base,TIMER_A);
+    TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
+    TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
+    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
+    TimerEnable(self->timer_base, TIMER_A); 
+    IntEnable(INT_TIMER0A); 
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
+// }
+
+
 }
 
+void Timer0Isr(){
+    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+    printf("Timer works bitch!!\n");
 
-
+}
 
 mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
 
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
-
+    
 
     // create dynamic peripheral object
     machine_timer_obj_t *self;
     self=  m_new0(machine_timer_obj_t, 1);
     // mp_print_str("done");
-
+    init_timer(self);
     return MP_OBJ_FROM_PTR(self);
 }
 
@@ -120,7 +145,7 @@ STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict
 const mp_obj_type_t machine_timer_type = {
     { &mp_type_type },
     .name = MP_QSTR_TIMER,
-    .print = machine_timer_print,
+    //.print = machine_timer_print,
     .make_new = machine_timer_make_new,
     // .protocol = &machine_hard_spi_p,
     .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
