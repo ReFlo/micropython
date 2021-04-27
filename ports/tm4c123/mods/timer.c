@@ -34,14 +34,6 @@
 #include "pin.h"
 #include "driverlib/timer.h"
 
-#include "py/mphal.h"
-#include "mperrno.h"
-#include "bufhelper.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/rom.h"
-#include "driverlib/rom_map.h"
-#include "driverlib/udma.h"
-#include "inc/hw_udma.h"
 
 /// \moduleref pyb
 /// \class Timer - periodically call a function
@@ -90,13 +82,12 @@
  */
 STATIC void machine_timer_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     
-    mp_printf(print, "Laft");
+    mp_hal_stdout_tx_strn("lafft", 5);
 }
 
 
 
-
-mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
+STATIC mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
 
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
@@ -106,20 +97,23 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     machine_timer_obj_t *self;
     self=  m_new0(machine_timer_obj_t, 1);
     // mp_print_str("done");
+    // mp_printf(printf, "Laft");   
+    mp_hal_stdout_tx_strn("lafft", 5);
 
+    
     return MP_OBJ_FROM_PTR(self);
+
 }
 
 STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
-    // instance methods
-    // { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_Timer) }
+    {MP_ROM_QSTR(MP_QSTR_init), MP_ROM_INT(100),}
     };
 
 STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict_table);
 
 const mp_obj_type_t machine_timer_type = {
     { &mp_type_type },
-    .name = MP_QSTR_TIMER,
+    .name = MP_QSTR_Timer,
     .print = machine_timer_print,
     .make_new = machine_timer_make_new,
     // .protocol = &machine_hard_spi_p,
