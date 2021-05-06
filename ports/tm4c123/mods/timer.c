@@ -113,7 +113,7 @@ STATIC int Timer_find(mp_obj_t id) {
     } else {
         // given an integer id
         int timer_id = mp_obj_get_int(id);
-        if (timer_id >= 0) {
+        if (timer_id >= 0 && timer_id <= MP_ARRAY_SIZE(MP_STATE_PORT(machine_timer_obj_all))) {
             return timer_id;
         }
         nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("Timer(%d) doesn't exist"), timer_id));
@@ -138,6 +138,13 @@ MP_DEFINE_CONST_FUN_OBJ_0(subsystem_info_obj, py_subsystem_info);
 
 STATIC void init_timer(mp_obj_t self_in){
      machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
+     
+     //structure for checking which timer should be initialized
+     //vorbild: SPI (mach ich noch flori schmori)
+
+     //if defined: bla bla
+     
+     //dieser code scheißt noch auf irgendwelche eingangsparameter
      self->timer_base = TIMER0_BASE;
      self->periph = SYSCTL_PERIPH_TIMER0;
      self->regs = (periph_timer_t*)TIMER0_BASE;
@@ -164,13 +171,13 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
 
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
-    
+    // create dynamically new Timer object
+    machine_timer_obj_t *self;
 
     timer_id_t timer_id = Timer_find(all_args[0]);
     // get Timer object
     if (MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] == NULL) {
-        // create new Timer object
-        machine_timer_obj_t *self;
+
         self =  m_new0(machine_timer_obj_t, 1);
         self->base.type = &machine_timer_type;
         MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] = self;
@@ -180,8 +187,15 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     }
 
     // self->timer_id = timer_id;
+
+    //printing test code
     mp_hal_stdout_tx_strn(all_args[1], 8);
+
+    //init helper for checking the input args needed
+    //init_helper_timer(self,all_args) bla bla
+
     init_timer(self);
+
     return MP_OBJ_FROM_PTR(self);
 
 }
