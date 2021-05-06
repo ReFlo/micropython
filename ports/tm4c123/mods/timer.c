@@ -79,9 +79,46 @@
 
 //     }
 
-/**
- * constructor for TIMER!!!!!!! object
- */
+STATIC int Timer_find(mp_obj_t id) {
+    if (MP_OBJ_IS_STR(id)) {
+        // given a string id
+        const char *port = mp_obj_str_get_str(id);
+        if (0) {
+        #ifdef MICROPY_HW_TIMER0_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER0_NAME) == 0) {
+            return TIMER_0;
+        #endif
+        #ifdef MICROPY_HW_TIMER1_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER1_NAME) == 0) {
+            return TIMER_1;
+        #endif
+        #ifdef MICROPY_HW_TIMER2_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER2_NAME) == 0) {
+            return TIMER_2;
+        #endif
+        #ifdef MICROPY_HW_TIMER3_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER3_NAME) == 0) {
+            return TIMER_3;
+        #endif
+        #ifdef MICROPY_HW_TIMER4_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER4_NAME) == 0) {
+            return TIMER_4;
+        #endif
+        #ifdef MICROPY_HW_TIMER5_NAME
+        } else if (strcmp(port, MICROPY_HW_TIMER5_NAME) == 0) {
+            return TIMER_5;
+        #endif
+        }
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("Timer(%s) doesn't exist"), port));
+    } else {
+        // given an integer id
+        int timer_id = mp_obj_get_int(id);
+        if (timer_id >= 0) {
+            return timer_id;
+        }
+        nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("Timer(%d) doesn't exist"), timer_id));
+    }
+}
 
 STATIC mp_obj_t machine_timer_print(mp_obj_t self_in) 
 {
@@ -99,27 +136,27 @@ STATIC mp_obj_t py_subsystem_info(void) {
 MP_DEFINE_CONST_FUN_OBJ_0(subsystem_info_obj, py_subsystem_info);
 
 
-// STATIC void init_timer(mp_obj_t self_in){
-//      machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
-//      self->timer_base = TIMER0_BASE;
-//      self->periph = SYSCTL_PERIPH_TIMER0;
-//      self->regs = (periph_timer_t*)TIMER0_BASE;
-//      self->timer_id = 0;
-//     SysCtlPeripheralEnable(self->periph);
-//     while(!SysCtlPeripheralReady(self->periph));
-//     TimerDisable(self->timer_base,TIMER_A);
-//     TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
-//     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
-//     TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
-//     TimerEnable(self->timer_base, TIMER_A); 
-//     IntEnable(INT_TIMER0A); 
-//     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
-// }
+STATIC void init_timer(mp_obj_t self_in){
+     machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
+     self->timer_base = TIMER0_BASE;
+     self->periph = SYSCTL_PERIPH_TIMER0;
+     self->regs = (periph_timer_t*)TIMER0_BASE;
+     self->timer_id = 0;
+    SysCtlPeripheralEnable(self->periph);
+    while(!SysCtlPeripheralReady(self->periph));
+    TimerDisable(self->timer_base,TIMER_A);
+    TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
+    TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
+    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
+    TimerEnable(self->timer_base, TIMER_A); 
+    IntEnable(INT_TIMER0A); 
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
+}
 
-// void Timer0Isr(){
-//     TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-//     mp_hal_stdout_tx_strn("Timer works!!\n", 5);
-// }
+void Timer0Isr(){
+    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+    mp_hal_stdout_tx_strn("Timer Works!\r\n",8);
+}
 
 
 // Create new Timer object
@@ -128,12 +165,23 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
     
-    // create dynamic peripheral object
-    machine_timer_obj_t *self;
-    self=  m_new0(machine_timer_obj_t, 1);
-    self->base.type = &machine_timer_type;
-    mp_hal_stdout_tx_strn("lafft\n\r", 8);
-    // init_timer(self);
+
+    timer_id_t timer_id = Timer_find(all_args[0]);
+    // get Timer object
+    if (MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] == NULL) {
+        // create new Timer object
+        machine_timer_obj_t *self;
+        self =  m_new0(machine_timer_obj_t, 1);
+        self->base.type = &machine_timer_type;
+        MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] = self;
+    } else {
+        // reference existing Timer object
+        self = MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1];
+    }
+
+    // self->timer_id = timer_id;
+    mp_hal_stdout_tx_strn(all_args[1], 8);
+    init_timer(self);
     return MP_OBJ_FROM_PTR(self);
 
 }
