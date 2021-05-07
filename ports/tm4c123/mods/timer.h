@@ -109,12 +109,12 @@ typedef struct  {
 
 typedef struct _machine_timer_obj_t {
     mp_obj_base_t base;
-    uint32_t timer_base;          // base address of timer module
-    uint32_t periph;                // address needed for tivaware sysctl functions
-    periph_timer_t* regs;         // register access struct pointer (usage: timer_obj.regs->DR)
+    uint32_t timer_base;        // base address of timer module
+    uint32_t periph;            // address needed for tivaware sysctl functions
+    periph_timer_t* regs;       // register access struct pointer (usage: timer_obj.regs->DR)
     timer_id_t timer_id;        // Timer Id 0..5, for identification purposes
-    
-    uint8_t width;           // Timer with 16/32 or 32/64 Bit Mode
+    uint32_t irqn;              // Interrupt request number
+    uint8_t width;              // Timer with 16/32 or 32/64 Bit Mode
     uint32_t prescale;          // Timer Prescaler value
     uint32_t frequency;         // Frequency of Timer
     mp_obj_t callback;          // callback function

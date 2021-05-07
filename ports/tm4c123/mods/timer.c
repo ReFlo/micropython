@@ -140,15 +140,44 @@ STATIC void init_timer(mp_obj_t self_in){
      machine_timer_obj_t *self = (machine_timer_obj_t*) self_in;
      
      //structure for checking which timer should be initialized
-     //vorbild: SPI (mach ich noch flori schmori)
+     //bis jetzt nur TIMER A
+     if(self->timer_id == TIMER_0){
+         self->timer_base = TIMER0_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER0;
+         self->regs = (periph_timer_t*)TIMER0_BASE;
+         self->irqn = INT_TIMER0A;
+     }
+    else if(self->timer_id == TIMER_1){
+         self->timer_base = TIMER1_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER1;
+         self->regs = (periph_timer_t*)TIMER1_BASE;
+         self->irqn = INT_TIMER1A;
+     }
+    else if(self->timer_id == TIMER_2){
+         self->timer_base = TIMER2_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER2;
+         self->regs = (periph_timer_t*)TIMER2_BASE;
+         self->irqn = INT_TIMER2A;
+     }
+    else if(self->timer_id == TIMER_3){
+         self->timer_base = TIMER3_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER3;
+         self->regs = (periph_timer_t*)TIMER3_BASE;
+         self->irqn = INT_TIMER3A;
+     }
+    else if(self->timer_id == TIMER_4){
+         self->timer_base = TIMER4_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER4;
+         self->regs = (periph_timer_t*)TIMER4_BASE;
+         self->irqn = INT_TIMER4A;
+     }
+    else if(self->timer_id == TIMER_5){
+         self->timer_base = TIMER5_BASE;
+         self->periph = SYSCTL_PERIPH_TIMER5;
+         self->regs = (periph_timer_t*)TIMER5_BASE;
+         self->irqn = INT_TIMER5A;
+     }
 
-     //if defined: bla bla
-     
-     //dieser code scheißt noch auf irgendwelche eingangsparameter
-     self->timer_base = TIMER0_BASE;
-     self->periph = SYSCTL_PERIPH_TIMER0;
-     self->regs = (periph_timer_t*)TIMER0_BASE;
-     self->timer_id = 0;
     SysCtlPeripheralEnable(self->periph);
     while(!SysCtlPeripheralReady(self->periph));
     TimerDisable(self->timer_base,TIMER_A);
@@ -156,8 +185,8 @@ STATIC void init_timer(mp_obj_t self_in){
     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
     TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
     TimerEnable(self->timer_base, TIMER_A); 
-    IntEnable(INT_TIMER0A); 
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);  
+    IntEnable(self->irqn); 
+    TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
 }
 
 void Timer0Isr(){
