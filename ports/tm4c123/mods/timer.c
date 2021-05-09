@@ -183,15 +183,15 @@ STATIC void init_timer(mp_obj_t self_in){
     TimerDisable(self->timer_base,TIMER_A);
     TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
-    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
-    TimerEnable(self->timer_base, TIMER_A); 
-    IntEnable(self->irqn); 
-    TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
+    // TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
+    // TimerEnable(self->timer_base, TIMER_A); 
+    // IntEnable(self->irqn); 
+    // TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
 }
 
 void Timer0Isr(){
     TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-    mp_hal_stdout_tx_strn("Timer Works!\r\n",8);
+    mp_hal_stdout_tx_str("Timer Works!\r\n");
 }
 
 
@@ -218,7 +218,7 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     // self->timer_id = timer_id;
 
     //printing test code
-    mp_hal_stdout_tx_strn(all_args[1], 8);
+    mp_obj_print(MP_OBJ_FROM_PTR(all_args[1]), PRINT_STR);
 
     //init helper for checking the input args needed
     //init_helper_timer(self,all_args) bla bla
