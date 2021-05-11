@@ -123,7 +123,7 @@ typedef struct _machine_timer_obj_t {
 //extern TIM_HandleTypeDef TIM5_Handle;
 
 extern const mp_obj_type_t machine_timer_type;
-void Timer0Isr(void);
+void timer_irq_handler(uint tim_id);
 //void timer_init0(void);
 //void timer_tim5_init(void);
 //TIM_HandleTypeDef *timer_tim6_init(uint freq);

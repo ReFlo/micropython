@@ -83,13 +83,13 @@
 #include "pybthread.h"
 #include "gccollect.h"
 #include "extint.h"
-// #include "timer.h"
+#include "timer.h"
 #include "uart.h"
 #include "storage.h"
 // #include "can.h"
 // #include "dma.h"
 // #include "i2c.h"
-#include "usb.h"
+// #include "usb.h"
 #include "inc/hw_memmap.h"
 #include "extint.h"
 
@@ -534,6 +534,49 @@ void GPIOH_Handler(void)
     GPIOIntClear(GPIO_PORTH_AHB_BASE, intStat);
     Handle_EXTI_Irq(GPIOH_IntHndl);
 }
+
+void TIM1_IRQHandler(void) 
+{
+    IRQ_ENTER(TIM1_CC_IRQn);
+    timer_irq_handler(1);
+    IRQ_EXIT(TIM1_CC_IRQn);
+}
+
+// void TIM2_IRQHandler(void) 
+// {
+//     IRQ_ENTER(TIM2_IRQn);
+//     timer_irq_handler(2);
+//     IRQ_EXIT(TIM2_IRQn);
+// }
+
+// void TIM3_IRQHandler(void) 
+// {
+//     IRQ_ENTER(TIM3_IRQn);
+//     timer_irq_handler(3);
+//     IRQ_EXIT(TIM3_IRQn);
+// }
+
+// void TIM4_IRQHandler(void) 
+// {
+//     IRQ_ENTER(TIM4_IRQn);
+//     timer_irq_handler(4);
+//     IRQ_EXIT(TIM4_IRQn);
+// }
+
+// void TIM5_IRQHandler(void) 
+// {
+//     IRQ_ENTER(TIM5_IRQn);
+//     timer_irq_handler(5);
+//     IRQ_EXIT(TIM5_IRQn);
+// }
+
+#if defined(TIM6) // STM32F401 doesn't have TIM6
+void TIM6_DAC_IRQHandler(void) {
+    IRQ_ENTER(TIM6_DAC_IRQn);
+    timer_irq_handler(6);
+    IRQ_EXIT(TIM6_DAC_IRQn);
+}
+#endif
 
 #ifdef MOREINTS
 /**

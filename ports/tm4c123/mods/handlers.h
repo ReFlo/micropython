@@ -89,4 +89,13 @@ void GPIOF_Handler(void);
 void GPIOG_Handler(void);
 void GPIOH_Handler(void);
 
+
+void TIM1_IRQHandler(void);
+void TIM2_IRQHandler(void);
+void TIM3_IRQHandler(void);
+void TIM4_IRQHandler(void);
+void TIM5_IRQHandler(void);
+void TIM6_IRQHandler(void);
+
+
 #endif // MICROPY_INCLUDED_TM4C_STM32_IT_H

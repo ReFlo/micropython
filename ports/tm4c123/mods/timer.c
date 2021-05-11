@@ -35,6 +35,7 @@
 #include "driverlib/timer.h"
 #include "inc/hw_memmap.h"
 #include "py/mphal.h"
+#include "handlers.h"
 
 
 /// \moduleref pyb
@@ -78,6 +79,11 @@
 //     string a ="lafft";
 
 //     }
+
+
+void print_test(){
+    mp_hal_stdout_tx_str("Callback Works!\r\n"); 
+}
 
 STATIC int Timer_find(mp_obj_t id) {
     if (MP_OBJ_IS_STR(id)) {
@@ -183,35 +189,39 @@ STATIC void init_timer(mp_obj_t self_in){
     TimerDisable(self->timer_base,TIMER_A);
     TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
-    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
-    // TimerEnable(self->timer_base, TIMER_A); 
-    // IntEnable(self->irqn); 
-    // TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
+    TimerIntRegister(self->timer_base, TIMER_A, TIM1_IRQHandler);    // Registering  isr       
+    TimerEnable(self->timer_base, TIMER_A); 
+    IntEnable(self->irqn); 
+    TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
+    self->callback = &print_test;
 }
 
-STATIC void Timer0Isr(void *self_in){
-    machine_timer_obj_t *self = self_in; 
-    if(self->timer_id == TIMER_0){
-        TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-     }
-    else if(self->timer_id == TIMER_1){
-        TimerIntClear(TIMER1_BASE,TIMER_TIMA_TIMEOUT);
-     }
-    else if(self->timer_id == TIMER_2){
-        TimerIntClear(TIMER2_BASE,TIMER_TIMA_TIMEOUT);
-     }
-    else if(self->timer_id == TIMER_3){
-        TimerIntClear(TIMER3_BASE,TIMER_TIMA_TIMEOUT);
-     }
-    else if(self->timer_id == TIMER_4){
-        TimerIntClear(TIMER4_BASE,TIMER_TIMA_TIMEOUT);
-     }
-    else if(self->timer_id == TIMER_5){
-        TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
-     }
+void timer_irq_handler(uint tim_id){
+     machine_timer_obj_t *self= MP_STATE_PORT(machine_timer_obj_all)[tim_id - 1];
+// if(self->timer_id == TIMER_0){
+//         TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+//     else if(self->timer_id == TIMER_1){
+//         TimerIntClear(TIMER1_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+//     else if(self->timer_id == TIMER_2){
+//         TimerIntClear(TIMER2_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+//     else if(self->timer_id == TIMER_3){
+//         TimerIntClear(TIMER3_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+//     else if(self->timer_id == TIMER_4){
+//         TimerIntClear(TIMER4_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+//     else if(self->timer_id == TIMER_5){
+//         TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
+//      }
+
+    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
     if(self->timer_id){
         mp_hal_stdout_tx_str("Timer Works!\r\n"); 
-        mp_call_function_1(self->callback, MP_OBJ_FROM_PTR(self));
+        // mp_call_function_1(self->callback, MP_OBJ_FROM_PTR(self));
+        self->callback;
     }
 
 }
