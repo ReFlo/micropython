@@ -183,15 +183,37 @@ STATIC void init_timer(mp_obj_t self_in){
     TimerDisable(self->timer_base,TIMER_A);
     TimerConfigure(self->timer_base, TIMER_CFG_PERIODIC);   // 32 bits Timer
     TimerLoadSet(self->timer_base, TIMER_A, 4e+7);
-    // TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
+    TimerIntRegister(self->timer_base, TIMER_A, Timer0Isr);    // Registering  isr       
     // TimerEnable(self->timer_base, TIMER_A); 
     // IntEnable(self->irqn); 
     // TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
 }
 
-void Timer0Isr(){
-    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-    mp_hal_stdout_tx_str("Timer Works!\r\n");
+STATIC void Timer0Isr(void *self_in){
+    machine_timer_obj_t *self = self_in; 
+    if(self->timer_id == TIMER_0){
+        TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_1){
+        TimerIntClear(TIMER1_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_2){
+        TimerIntClear(TIMER2_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_3){
+        TimerIntClear(TIMER3_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_4){
+        TimerIntClear(TIMER4_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_5){
+        TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    if(self->timer_id){
+        mp_hal_stdout_tx_str("Timer Works!\r\n"); 
+        mp_call_function_1(self->callback, MP_OBJ_FROM_PTR(self));
+    }
+
 }
 
 
