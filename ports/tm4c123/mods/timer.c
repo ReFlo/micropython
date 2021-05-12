@@ -220,20 +220,19 @@ void timer_irq_handler(uint tim_id){
     TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
     if(self->timer_id){
         mp_hal_stdout_tx_str("Timer Works!\r\n"); 
-        mp_sched_lock();
-        gc_lock();
-        nlr_buf_t nlr;
-        if (nlr_push(&nlr) == 0) {
+        // mp_sched_lock();
+        // gc_lock();
+        // nlr_buf_t nlr;
+        // if (nlr_push(&nlr) == 0) {
             mp_call_function_1(self->callback, self);
-            nlr_pop();
-        }
+            // nlr_pop();
+        // }
     }
         // mp_call_function_1(self->callback, MP_OBJ_FROM_PTR(self));
         // self->callback;
     
     
 }
-
 
 // Create new Timer object
 mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
