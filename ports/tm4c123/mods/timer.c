@@ -193,41 +193,64 @@ STATIC void init_timer(mp_obj_t self_in){
     TimerIntRegister(self->timer_base, TIMER_A, TIM1_IRQHandler);    // Registering  isr       
     TimerEnable(self->timer_base, TIMER_A); 
     IntEnable(self->irqn); 
-    TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
+    // TimerIntEnable(self->timer_base, TIMER_TIMA_TIMEOUT);  
 }
 
-void timer_irq_handler(uint tim_id){
-// if(self->timer_id == TIMER_0){
-//         TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
-//      }
-//     else if(self->timer_id == TIMER_1){
-//         TimerIntClear(TIMER1_BASE,TIMER_TIMA_TIMEOUT);
-//      }
-//     else if(self->timer_id == TIMER_2){
-//         TimerIntClear(TIMER2_BASE,TIMER_TIMA_TIMEOUT);
-//      }
-//     else if(self->timer_id == TIMER_3){
-//         TimerIntClear(TIMER3_BASE,TIMER_TIMA_TIMEOUT);
-//      }
-//     else if(self->timer_id == TIMER_4){
-//         TimerIntClear(TIMER4_BASE,TIMER_TIMA_TIMEOUT);
-//      }
-//     else if(self->timer_id == TIMER_5){
-//         TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
-//      }
+STATIC mp_obj_t timer_callback(mp_obj_t self_in, mp_obj_t callback) {
+machine_timer_obj_t *self = self_in;
+    if (callback == mp_const_none) {
+        // stop interrupt (but not timer)
+        TimerIntDisable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+        self->callback = mp_const_none;
+    } else if (mp_obj_is_callable(callback)) {
+        self->callback = callback;
+        TimerIntEnable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+    }
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(timer_callback_obj, timer_callback);
 
-    machine_timer_obj_t *self= MP_STATE_PORT(machine_timer_obj_all)[tim_id - 1];
-    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+
+void timer_irq_handler(uint tim_id){
+machine_timer_obj_t *self= MP_STATE_PORT(machine_timer_obj_all)[tim_id];
+if(self->timer_id == TIMER_0){
+        TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_1){
+        TimerIntClear(TIMER1_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_2){
+        TimerIntClear(TIMER2_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_3){
+        TimerIntClear(TIMER3_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_4){
+        TimerIntClear(TIMER4_BASE,TIMER_TIMA_TIMEOUT);
+     }
+    else if(self->timer_id == TIMER_5){
+        TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
+     }
+
+
     if(self->timer_id){
         mp_hal_stdout_tx_str("Timer Works!\r\n"); 
         // mp_sched_lock();
         // gc_lock();
         // nlr_buf_t nlr;
         // if (nlr_push(&nlr) == 0) {
-            mp_call_function_1(self->callback, self);
-            // nlr_pop();
-        // }
-    }
+
+            
+
+            if(self->callback != mp_const_none){
+            mp_obj_t callback = self->callback;
+            gc_lock();
+            nlr_buf_t nlr;
+            if (nlr_push(&nlr) == 0) {
+                mp_call_function_1(callback, self);
+                nlr_pop();}
+            }
+        }
         // mp_call_function_1(self->callback, MP_OBJ_FROM_PTR(self));
         // self->callback;
     
@@ -244,24 +267,22 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
 
     timer_id_t timer_id = Timer_find(all_args[0]);
     // get Timer object
-    if (MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] == NULL) {
+    if (MP_STATE_PORT(machine_timer_obj_all)[timer_id] == NULL) {
 
         self =  m_new0(machine_timer_obj_t, 1);
         self->base.type = &machine_timer_type;
-        MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] = self;
+        MP_STATE_PORT(machine_timer_obj_all)[timer_id] = self;
     } else {
         // reference existing Timer object
-        self = MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1];
+        self = MP_STATE_PORT(machine_timer_obj_all)[timer_id];
     }
-
-    // self->timer_id = timer_id;
+    self->callback = mp_const_none;
 
     //printing test code
-    mp_obj_print(MP_OBJ_FROM_PTR(all_args[1]), PRINT_STR);
+    // mp_obj_print(MP_OBJ_FROM_PTR(all_args[1]), PRINT_STR);
 
     //init helper for checking the input args needed
     //init_helper_timer(self,all_args) bla bla
-    self->callback = (mp_obj_t*)all_args[1];
 
     init_timer(self);
 
@@ -272,7 +293,8 @@ mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t
 STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
       { MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&subsystem_info_obj) },
       { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&machine_timer_print_obj) },
-    };
+      { MP_ROM_QSTR(MP_QSTR_callback), MP_ROM_PTR(&timer_callback_obj) }
+      };
 
 STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict_table);
 
