@@ -36,6 +36,7 @@
 #include "inc/hw_memmap.h"
 #include "py/mphal.h"
 #include "handlers.h"
+#include "py/objstr.h"
 
 
 
@@ -80,6 +81,7 @@
 //     string a ="lafft";
 
 //     }
+
 
 
 void print_test(){
@@ -216,15 +218,21 @@ void timer_irq_handler(uint tim_id){
 //         TimerIntClear(TIMER5_BASE,TIMER_TIMA_TIMEOUT);
 //      }
 
-    machine_timer_obj_t *self= MP_STATE_PORT(machine_timer_obj_all)[tim_id - 1];
-    TimerIntClear(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+    machine_timer_obj_t *self= MP_STATE_PORT(machine_timer_obj_all)[tim_id];
+    TimerIntClear(self->timer_base,TIMER_TIMA_TIMEOUT);
     if(self->timer_id){
         mp_hal_stdout_tx_str("Timer Works!\r\n"); 
         // mp_sched_lock();
         // gc_lock();
         // nlr_buf_t nlr;
         // if (nlr_push(&nlr) == 0) {
-            mp_call_function_1(self->callback, self);
+            // void (*temp)(void) = self->callback;
+            // (*temp)();
+            
+            // (*self->funcptr)();
+            
+            
+            mp_call_function_0(self->callback);
             // nlr_pop();
         // }
     }
@@ -234,42 +242,89 @@ void timer_irq_handler(uint tim_id){
     
 }
 
+
+
+// Init Helper for creation of new Timer
+STATIC mp_obj_t machine_timer_init_helper(machine_timer_obj_t *tim, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args){
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_mode,         MP_ARG_KW_ONLY | MP_ARG_OBJ,  {.u_rom_obj = MP_ROM_QSTR(MP_QSTR_PERIODIC)}},
+        { MP_QSTR_width,        MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 16} },
+    };
+
+    //parse args
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    
+    //--------------------------------test print of args---------------------------------------
+    mp_hal_stdout_tx_str("Selected mode: ");
+    mp_obj_print(MP_OBJ_FROM_PTR(args[0].u_obj),PRINT_STR); //string has to be printed in that way
+
+    printf("\r\nSelected Timer Width: %d\n",args[1].u_int);
+    //----------------------------------------------------------------------------------------- 
+
+     //-------------------------------Check width and mode-------------------------------------
+    
+    //----------------------------------------------------------------------------------------- 
+    
+
+    //call real timer init from here
+    
+    
+    
+    return mp_const_none;
+}
+
+// function that is called to pass arguments to previously created timer e.g. t.init(mode="",freq="")
+STATIC mp_obj_t machine_timer_init(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return machine_timer_init_helper(args[0], n_args - 1, args + 1, kw_args);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_init_obj, 1, machine_timer_init);
+
 // Create new Timer object
-mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
+STATIC mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
 
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
+    
+    //find timer id
+    timer_id_t timer_id = Timer_find(all_args[0]);
+
     // create dynamically new Timer object
     machine_timer_obj_t *self;
 
-    timer_id_t timer_id = Timer_find(all_args[0]);
     // get Timer object
-    if (MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] == NULL) {
+    if (MP_STATE_PORT(machine_timer_obj_all)[timer_id] == NULL) {
 
         self =  m_new0(machine_timer_obj_t, 1);
         self->base.type = &machine_timer_type;
-        MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1] = self;
+        MP_STATE_PORT(machine_timer_obj_all)[timer_id] = self;
+        
     } else {
         // reference existing Timer object
-        self = MP_STATE_PORT(machine_timer_obj_all)[timer_id - 1];
+        self = MP_STATE_PORT(machine_timer_obj_all)[timer_id];
     }
 
-    // self->timer_id = timer_id;
+    self->timer_id = timer_id;  
+    if(n_args > 1 || n_kw > 0)  {
+        //dont know if needed
+        mp_map_t kw_args;
+        mp_map_init_fixed_table(&kw_args, n_kw, all_args + n_args);
+        //init helper for checking the input args and setting attributes
+        machine_timer_init_helper(self, n_args - 1, all_args + 1, &kw_args);
+    }
+   
 
-    //printing test code
-    mp_obj_print(MP_OBJ_FROM_PTR(all_args[1]), PRINT_STR);
+    // //init_helper_timer(self,all_args) bla bla
+    // self->callback = (mp_obj_t*)all_args[1];
 
-    //init helper for checking the input args needed
-    //init_helper_timer(self,all_args) bla bla
-    self->callback = (mp_obj_t*)all_args[1];
-
-    init_timer(self);
+    // init_timer(self);
 
     return MP_OBJ_FROM_PTR(self);
 
 }
 
 STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
+      { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&machine_timer_init_obj)},
       { MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&subsystem_info_obj) },
       { MP_ROM_QSTR(MP_QSTR_print), MP_ROM_PTR(&machine_timer_print_obj) },
     };
