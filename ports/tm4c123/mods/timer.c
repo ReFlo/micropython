@@ -200,11 +200,12 @@ STATIC mp_obj_t timer_callback(mp_obj_t self_in, mp_obj_t callback) {
 machine_timer_obj_t *self = self_in;
     if (callback == mp_const_none) {
         // stop interrupt (but not timer)
-        TimerIntDisable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+        MAP_TimerIntDisable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
         self->callback = mp_const_none;
     } else if (mp_obj_is_callable(callback)) {
-        self->callback = callback;
-        TimerIntEnable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
+        MP_STATE_PORT(test_callback_obj)=callback;
+        // self->callback = MP_STATE_PORT(test_callback_obj);
+        MAP_TimerIntEnable(TIMER0_BASE,TIMER_TIMA_TIMEOUT);
     }
     return mp_const_none;
 }
@@ -243,11 +244,11 @@ if(self->timer_id == TIMER_0){
             
 
             if(self->callback != mp_const_none){
-            mp_obj_t callback = self->callback;
+            // mp_obj_t callback = self->callback;
             gc_lock();
             nlr_buf_t nlr;
             if (nlr_push(&nlr) == 0) {
-                mp_call_function_1(callback, self);
+                mp_call_function_1(MP_STATE_PORT(test_callback_obj), self);
                 nlr_pop();}
             }
         }
