@@ -31,10 +31,10 @@
 #include "py/runtime.h"
 #include "py/gc.h"
 #include "inc/hw_types.h"
-#include "interrupt.h"
-#include "pybsleep.h"
-#include "mperror.h"
+#include "driverlib/interrupt.h"
 #include "mpirq.h"
+#include "driverlib/timer.h"
+#include "inc/hw_timer.h"
 
 
 /******************************************************************************
@@ -42,16 +42,12 @@
  ******************************************************************************/
 const mp_arg_t mp_irq_init_args[] = {
     { MP_QSTR_trigger,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = mp_const_none} },
-    { MP_QSTR_priority,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1} }, // the lowest priority
     { MP_QSTR_handler,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = mp_const_none} },
-    { MP_QSTR_wake,         MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = mp_const_none} },
 };
 
 /******************************************************************************
  DECLARE PRIVATE DATA
  ******************************************************************************/
-STATIC uint8_t mp_irq_priorities[] = { INT_PRIORITY_LVL_7, INT_PRIORITY_LVL_6, INT_PRIORITY_LVL_5, INT_PRIORITY_LVL_4,
-                                       INT_PRIORITY_LVL_3, INT_PRIORITY_LVL_2, INT_PRIORITY_LVL_1 };
 
 /******************************************************************************
  DEFINE PUBLIC FUNCTIONS
@@ -109,12 +105,6 @@ void mp_irq_remove (const mp_obj_t parent) {
     }
 }
 
-uint mp_irq_translate_priority (uint priority) {
-    if (priority < 1 || priority > MP_ARRAY_SIZE(mp_irq_priorities)) {
-        mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
-    }
-    return mp_irq_priorities[priority - 1];
-}
 
 void mp_irq_handler (mp_obj_t self_in) {
     mp_irq_obj_t *self = self_in;
@@ -135,7 +125,6 @@ void mp_irq_handler (mp_obj_t self_in) {
             // by printing a message
             printf("Uncaught exception in callback handler\n");
             mp_obj_print_exception(&mp_plat_print, (mp_obj_t)nlr.ret_val);
-            mperror_signal_error();
         }
         gc_unlock();
     }
@@ -186,7 +175,6 @@ STATIC const mp_rom_map_elem_t mp_irq_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init),                MP_ROM_PTR(&mp_irq_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_enable),              MP_ROM_PTR(&mp_irq_enable_obj) },
     { MP_ROM_QSTR(MP_QSTR_disable),             MP_ROM_PTR(&mp_irq_disable_obj) },
-    { MP_ROM_QSTR(MP_QSTR_flags),               MP_ROM_PTR(&mp_irq_flags_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_irq_locals_dict, mp_irq_locals_dict_table);
