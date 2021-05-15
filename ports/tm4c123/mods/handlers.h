@@ -90,12 +90,19 @@ void GPIOG_Handler(void);
 void GPIOH_Handler(void);
 
 
-void TIM1_IRQHandler(void);
-void TIM2_IRQHandler(void);
-void TIM3_IRQHandler(void);
-void TIM4_IRQHandler(void);
-void TIM5_IRQHandler(void);
-void TIM6_IRQHandler(void);
+void TIMER0A_IRQHandler(void);
+void TIMER0B_IRQHandler(void);
+void TIMER1A_IRQHandler(void);
+void TIMER1B_IRQHandler(void);
+void TIMER2A_IRQHandler(void);
+void TIMER2B_IRQHandler(void);
+void TIMER3A_IRQHandler(void);
+void TIMER3B_IRQHandler(void);
+void TIMER4A_IRQHandler(void);
+void TIMER4B_IRQHandler(void);
+void TIMER5A_IRQHandler(void);
+void TIMER5B_IRQHandler(void);
+
 
 
 #endif // MICROPY_INCLUDED_TM4C_STM32_IT_H

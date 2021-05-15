@@ -535,40 +535,55 @@ void GPIOH_Handler(void)
     Handle_EXTI_Irq(GPIOH_IntHndl);
 }
 
-void TIM1_IRQHandler(void) 
+void TIMER0A_IRQHandler(void) 
 {
-    IRQ_ENTER(TIM1_CC_IRQn);
+    timer_irq_handler(0);
+}
+void TIMER0B_IRQHandler(void) 
+{
     timer_irq_handler(1);
-    IRQ_EXIT(TIM1_CC_IRQn);
+}
+void TIMER1A_IRQHandler(void) 
+{
+    timer_irq_handler(0);
+}
+void TIMER1B_IRQHandler(void) 
+{
+    timer_irq_handler(1);
+}
+void TIMER2A_IRQHandler(void) 
+{
+    timer_irq_handler(0);
+}
+void TIMER2B_IRQHandler(void) 
+{
+    timer_irq_handler(1);
+}
+void TIMER3A_IRQHandler(void) 
+{
+    timer_irq_handler(0);
+}
+void TIMER3B_IRQHandler(void) 
+{
+    timer_irq_handler(1);
+}
+void TIMER4A_IRQHandler(void) 
+{
+    timer_irq_handler(0);
+}
+void TIMER4B_IRQHandler(void) 
+{
+    timer_irq_handler(1);
+}
+void TIMER5A_IRQHandler(void) 
+{
+    timer_irq_handler(0);
+}
+void TIMER5B_IRQHandler(void) 
+{
+    timer_irq_handler(1);
 }
 
-// void TIM2_IRQHandler(void) 
-// {
-//     IRQ_ENTER(TIM2_IRQn);
-//     timer_irq_handler(2);
-//     IRQ_EXIT(TIM2_IRQn);
-// }
-
-// void TIM3_IRQHandler(void) 
-// {
-//     IRQ_ENTER(TIM3_IRQn);
-//     timer_irq_handler(3);
-//     IRQ_EXIT(TIM3_IRQn);
-// }
-
-// void TIM4_IRQHandler(void) 
-// {
-//     IRQ_ENTER(TIM4_IRQn);
-//     timer_irq_handler(4);
-//     IRQ_EXIT(TIM4_IRQn);
-// }
-
-// void TIM5_IRQHandler(void) 
-// {
-//     IRQ_ENTER(TIM5_IRQn);
-//     timer_irq_handler(5);
-//     IRQ_EXIT(TIM5_IRQn);
-// }
 
 #if defined(TIM6) // STM32F401 doesn't have TIM6
 void TIM6_DAC_IRQHandler(void) {

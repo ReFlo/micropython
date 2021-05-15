@@ -120,17 +120,22 @@ typedef struct _machine_timer_obj_t {
     mp_obj_t callback;          // callback function
 } machine_timer_obj_t;
 
+
+
+
 //extern TIM_HandleTypeDef TIM5_Handle;
 
 extern const mp_obj_type_t machine_timer_type;
 void timer_irq_handler(uint tim_id);
-//void timer_init0(void);
-//void timer_tim5_init(void);
-//TIM_HandleTypeDef *timer_tim6_init(uint freq);
-//void timer_deinit(void);
-//uint32_t timer_get_source_freq(uint32_t tim_id);
-//void timer_irq_handler(uint tim_id);
 
-//TIM_HandleTypeDef *pyb_timer_get_handle(mp_obj_t timer);
+/******************************************************************************
+ DECLARE EXPORTED DATA
+ ******************************************************************************/
+extern const mp_obj_type_t pyb_timer_type;
+
+/******************************************************************************
+ DECLARE PUBLIC FUNCTIONS
+ ******************************************************************************/
+void timer_init0 (void);
 
 #endif // MICROPY_INCLUDED_TM4C_TIMER_H
