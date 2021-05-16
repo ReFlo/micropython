@@ -413,7 +413,7 @@ STATIC bool init_sdcard_fs(void) {
 }
 #endif
 
-int tm4c_main(int reset_mode) {
+deint tm4c_main(int reset_mode) {
 
     // Set the priority grouping
     // TODO NVIC_SetPriorityGrouping(NVIC_APINT_PRIGROUP_4_4);
