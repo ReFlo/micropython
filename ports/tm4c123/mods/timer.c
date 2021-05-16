@@ -262,16 +262,27 @@ STATIC mp_obj_t machine_timer_init_helper(machine_timer_obj_t *tim, size_t n_arg
     printf("\r\nSelected Timer Width: %d\n",args[1].u_int);
     //----------------------------------------------------------------------------------------- 
 
-     //-------------------------------Check width and mode-------------------------------------
-    
+    //-------------------------------Check width and mode-------------------------------------
+    // check mode
+    if ((args[0].u_obj != MP_ROM_QSTR(MP_QSTR_PERIODIC)) && (args[0].u_obj != MP_ROM_QSTR(MP_QSTR_ONESHOT)) &&  (args[0].u_obj != MP_ROM_QSTR(MP_QSTR_PWM))) {
+        goto error;
+    }
+    // check width (more accurate check will follow)
+    if ((args[1].u_int != 16) && (args[1].u_int != 32)){
+        goto error;
+    }
+
     //----------------------------------------------------------------------------------------- 
     
 
     //call real timer init from here
-    
+    init_timer(tim);
     
     
     return mp_const_none;
+
+error: 
+    mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
 }
 
 // function that is called to pass arguments to previously created timer e.g. t.init(mode="",freq="")
