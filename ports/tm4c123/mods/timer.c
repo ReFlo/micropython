@@ -330,6 +330,7 @@ typedef struct _pyb_timer_channel_obj_t {
 // #####################################################
 
 /*******************************************************************************
+ *
  Create Timer (from cc3200)
  *****************************************************************************/
 STATIC const mp_irq_methods_t pyb_timer_channel_irq_methods;
@@ -392,7 +393,7 @@ STATIC mp_obj_t pyb_timer_make_new(const mp_obj_type_t *type, size_t n_args, siz
     }
 
     pyb_timer_obj_t *tim = &pyb_timer_obj[timer_idx];
-    tim->base.type = &pyb_timer_type;
+    tim->base.type = &machine_timer_type;
     tim->id = timer_idx;
 
     if (n_args > 1 || n_kw > 0) {
@@ -755,6 +756,15 @@ STATIC mp_obj_t pyb_timer_deinit(mp_obj_t self_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_timer_deinit_obj, pyb_timer_deinit);
 
+void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
+    pyb_timer_channel_obj_t *self;
+    uint32_t status;
+    if ((self = pyb_timer_channel_find(timer, channel))) {      
+        status = MAP_TimerIntStatus(self->timer->timer, true) & self->channel;
+        MAP_TimerIntClear(self->timer->timer, status);
+        mp_irq_handler(mp_irq_find(self));
+    }
+}
 
 
 

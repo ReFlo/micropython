@@ -537,51 +537,51 @@ void GPIOH_Handler(void)
 
 void TIMER0A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER0_BASE, TIMER_A);
 }
 void TIMER0B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER0_BASE, TIMER_B);
 }
 void TIMER1A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER1_BASE, TIMER_A);
 }
 void TIMER1B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER1_BASE, TIMER_B);
 }
 void TIMER2A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER2_BASE, TIMER_A);
 }
 void TIMER2B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER2_BASE, TIMER_B);
 }
 void TIMER3A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER3_BASE, TIMER_A);
 }
 void TIMER3B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER3_BASE, TIMER_B);
 }
 void TIMER4A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER4_BASE, TIMER_A);
 }
 void TIMER4B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER4_BASE, TIMER_B);
 }
 void TIMER5A_IRQHandler(void) 
 {
-    timer_irq_handler(0);
+    TIMERGenericIntHandler(TIMER5_BASE, TIMER_A);
 }
 void TIMER5B_IRQHandler(void) 
 {
-    timer_irq_handler(1);
+    TIMERGenericIntHandler(TIMER5_BASE, TIMER_B);
 }
 
 
