@@ -341,7 +341,7 @@ STATIC pyb_timer_obj_t pyb_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = TIMER0_B
                                                              {.timer = TIMER5_BASE}};
 STATIC const mp_obj_type_t pyb_timer_channel_type;
 // !!!!!!!!!!!!!!!Real Pins needed to be added!!!!!!!!!!!!!!!!
-STATIC const mp_obj_t pyb_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
+// STATIC const mp_obj_t pyb_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
 
 STATIC mp_obj_t pyb_timer_init_helper(pyb_timer_obj_t *tim, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     static const mp_arg_t allowed_args[] = {
@@ -566,20 +566,20 @@ invalid_args:
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_timer_channel_irq_obj, 1, pyb_timer_channel_irq);
 
-STATIC void pyb_timer_channel_remove (pyb_timer_channel_obj_t *ch) {
-    pyb_timer_channel_obj_t *channel;
-    if ((channel = pyb_timer_channel_find(ch->timer->timer, ch->channel))) {
-        mp_obj_list_remove(&MP_STATE_PORT(pyb_timer_channel_obj_list), channel);
-        // unregister it with the sleep module
-    }
-}
+// STATIC void pyb_timer_channel_remove (pyb_timer_channel_obj_t *ch) {
+//     pyb_timer_channel_obj_t *channel;
+//     if ((channel = pyb_timer_channel_find(ch->timer->timer, ch->channel))) {
+//         mp_obj_list_remove(&MP_STATE_PORT(pyb_timer_channel_obj_list), channel);
+//         // unregister it with the sleep module
+//     }
+// }
 
-STATIC void pyb_timer_channel_add (pyb_timer_channel_obj_t *ch) {
-    // remove it in case it already exists
-    pyb_timer_channel_remove(ch);
-    mp_obj_list_append(&MP_STATE_PORT(pyb_timer_channel_obj_list), ch);
-    // register it with the sleep module
-}
+// STATIC void pyb_timer_channel_add (pyb_timer_channel_obj_t *ch) {
+//     // remove it in case it already exists
+//     pyb_timer_channel_remove(ch);
+//     mp_obj_list_append(&MP_STATE_PORT(pyb_timer_channel_obj_list), ch);
+//     // register it with the sleep module
+// }
 
 // computes prescaler period and match value so timer triggers at freq-Hz
 STATIC uint32_t compute_prescaler_period_and_match_value(pyb_timer_channel_obj_t *ch, uint32_t *period_out, uint32_t *match_out) {
@@ -728,20 +728,20 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
     timer_channel_init(ch);
 
     // assign the pin
-    if ((ch->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
-        uint32_t ch_idx = (ch->channel == TIMER_A) ? 0 : 1;
-        // use the default pin if available
-        mp_obj_t pin_o = (mp_obj_t)pyb_timer_pwm_pin[(ch->timer->id * 2) + ch_idx];
-        if (pin_o != MP_OBJ_NULL) {
-            pin_obj_t *pin = pin_find(pin_o);
-            // pin_config (pin, pin_find_af_index(pin, PIN_FN_TIM, ch->timer->id, PIN_TYPE_TIM_PWM),
-            //             0, PIN_TYPE_STD, -1, PIN_STRENGTH_4MA);
-        }
-    }
-    // add the timer to the list
-    pyb_timer_channel_add(ch);
+    // if ((ch->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
+    //     uint32_t ch_idx = (ch->channel == TIMER_A) ? 0 : 1;
+    //     // use the default pin if available
+    //     // mp_obj_t pin_o = (mp_obj_t)pyb_timer_pwm_pin[(ch->timer->id * 2) + ch_idx];
+    //     // if (pin_o != MP_OBJ_NULL) {
+    //     //     pin_obj_t *pin = pin_find(pin_o);
+    //         // pin_config (pin, pin_find_af_index(pin, PIN_FN_TIM, ch->timer->id, PIN_TYPE_TIM_PWM),
+    //         //             0, PIN_TYPE_STD, -1, PIN_STRENGTH_4MA);
+    //     }
+    // }
+    // // add the timer to the list
+    // pyb_timer_channel_add(ch);
 
-    return ch;
+    // return ch;
 
 error:
     mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
@@ -776,15 +776,22 @@ STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
     };
 STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict_table);
 
-STATIC const mp_rom_map_elem_t pyb_timer_channel_locals_dict_table[] = {
+STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
     // instance methods
-    { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&pyb_timer_channel_freq_obj) },
-    { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&pyb_timer_channel_period_obj) },
-    { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&pyb_timer_channel_duty_cycle_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&pyb_timer_channel_freq_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&pyb_timer_channel_period_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&pyb_timer_channel_duty_cycle_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&pyb_timer_channel_irq_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(pyb_timer_channel_locals_dict, pyb_timer_channel_locals_dict_table);
+STATIC MP_DEFINE_CONST_DICT(machine_timer_channel_locals_dict, machine_timer_channel_locals_dict_table);
 
+const mp_obj_type_t machine_timer_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_Timer,
+    // .print = pyb_timer_print,
+    .make_new = pyb_timer_make_new,
+    .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
+};
 
 STATIC const mp_irq_methods_t pyb_timer_channel_irq_methods = {
     .init = pyb_timer_channel_irq,
@@ -793,11 +800,10 @@ STATIC const mp_irq_methods_t pyb_timer_channel_irq_methods = {
     .flags = pyb_timer_channel_irq_flags,
 };
 
-const mp_obj_type_t machine_timer_type = {
+STATIC const mp_obj_type_t pyb_timer_channel_type = {
     { &mp_type_type },
-    .name = MP_QSTR_Timer,
-    // .make_new = machine_timer_make_new,
-    .make_new = pyb_timer_make_new,
-    .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
-    };
+    .name = MP_QSTR_TimerChannel,
+    // .print = pyb_timer_channel_print,
+    .locals_dict = (mp_obj_t)&machine_timer_channel_locals_dict,
+};
 
