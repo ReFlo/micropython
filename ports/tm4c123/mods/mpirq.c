@@ -32,7 +32,7 @@
 #include "py/gc.h"
 #include "inc/hw_types.h"
 #include "driverlib/interrupt.h"
-#include "mods/mpirq.h"
+#include "mpirq.h"
 #include "driverlib/timer.h"
 #include "inc/hw_timer.h"
 
@@ -52,7 +52,7 @@ const mp_arg_t mp_irq_init_args[] = {
 /******************************************************************************
  DEFINE PUBLIC FUNCTIONS
  ******************************************************************************/
-void mp_irq_init0 (void) {
+void irq_init0 (void) {
     // initialize the callback objects list
     mp_obj_list_init(&MP_STATE_PORT(mp_irq_obj_list), 0);
 }
@@ -106,7 +106,7 @@ void mp_irq_remove (const mp_obj_t parent) {
 }
 
 
-void _irq_handler (mp_obj_t self_in) {
+void irq_handler (mp_obj_t self_in) {
     mp_irq_obj_t *self = self_in;
     if (self && self->handler != mp_const_none) {
         // when executing code within a handler we must lock the GC to prevent
@@ -168,7 +168,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_irq_flags_obj, mp_irq_flags);
 
 STATIC mp_obj_t mp_irq_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 0, 0, false);
-    mp_irq_handler (self_in);
+    irq_handler (self_in);
     return mp_const_none;
 }
 
@@ -177,6 +177,7 @@ STATIC const mp_rom_map_elem_t mp_irq_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init),                MP_ROM_PTR(&mp_irq_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_enable),              MP_ROM_PTR(&mp_irq_enable_obj) },
     { MP_ROM_QSTR(MP_QSTR_disable),             MP_ROM_PTR(&mp_irq_disable_obj) },
+    { MP_ROM_QSTR(MP_QSTR_flags),               MP_ROM_PTR(&mp_irq_flags_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_irq_locals_dict, mp_irq_locals_dict_table);

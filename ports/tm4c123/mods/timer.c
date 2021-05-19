@@ -37,7 +37,7 @@
 #include "inc/hw_memmap.h"
 #include "py/mphal.h"
 #include "handlers.h"
-#include "mods/mpirq.h"
+#include "mpirq.h"
 #include "py/mperrno.h"
 
 typedef unsigned char byte;
@@ -343,6 +343,11 @@ STATIC pyb_timer_obj_t pyb_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = TIMER0_B
 STATIC const mp_obj_type_t pyb_timer_channel_type;
 // !!!!!!!!!!!!!!!Real Pins needed to be added!!!!!!!!!!!!!!!!
 // STATIC const mp_obj_t pyb_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
+
+void timer_init0 (void) {
+    mp_obj_list_init(&MP_STATE_PORT(pyb_timer_channel_obj_list), 0);
+}
+
 
 STATIC mp_obj_t pyb_timer_init_helper(pyb_timer_obj_t *tim, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     static const mp_arg_t allowed_args[] = {
@@ -762,7 +767,7 @@ void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
     if ((self = pyb_timer_channel_find(timer, channel))) {
         status = MAP_TimerIntStatus(self->timer->timer, true) & self->channel;
         MAP_TimerIntClear(self->timer->timer, status);
-        mp_irq_handler(mp_irq_find(self));
+        irq_handler(mp_irq_find(self));
     }
 }
 
@@ -786,14 +791,6 @@ STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
     };
 STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict_table);
 
-STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
-    // instance methods
-    // { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&pyb_timer_channel_freq_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&pyb_timer_channel_period_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&pyb_timer_channel_duty_cycle_obj) },
-    { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&pyb_timer_channel_irq_obj) },
-};
-STATIC MP_DEFINE_CONST_DICT(machine_timer_channel_locals_dict, machine_timer_channel_locals_dict_table);
 
 const mp_obj_type_t machine_timer_type = {
     { &mp_type_type },
@@ -802,6 +799,15 @@ const mp_obj_type_t machine_timer_type = {
     .make_new = pyb_timer_make_new,
     .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
 };
+
+STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
+    // instance methods
+    // { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&pyb_timer_channel_freq_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&pyb_timer_channel_period_obj) },
+    // { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&pyb_timer_channel_duty_cycle_obj) },
+    { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&pyb_timer_channel_irq_obj) },
+};
+STATIC MP_DEFINE_CONST_DICT(machine_timer_channel_locals_dict, machine_timer_channel_locals_dict_table);
 
 STATIC const mp_irq_methods_t pyb_timer_channel_irq_methods = {
     .init = pyb_timer_channel_irq,
