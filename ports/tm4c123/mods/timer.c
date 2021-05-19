@@ -677,7 +677,7 @@ STATIC void timer_disable (pyb_timer_obj_t *tim) {
     // if ((ch = pyb_timer_channel_find (tim->timer, TIMER_B))) {
     //     pyb_sleep_remove(ch);
     // }
-    // MAP_PRCMPeripheralClkDisable(tim->peripheral, PRCM_RUN_MODE_CLK | PRCM_SLP_MODE_CLK);
+    SysCtlPeripheralDisable(tim->peripheral);
 }
 
 STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
