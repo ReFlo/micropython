@@ -94,7 +94,7 @@ typedef unsigned int uint;
 /******************************************************************************
  DEFINE PRIVATE TYPES
  ******************************************************************************/
-typedef struct _pyb_timer_obj_t {
+typedef struct _machine_timer_obj_t {
     mp_obj_base_t base;
     uint32_t timer;
     uint32_t config;
@@ -102,17 +102,17 @@ typedef struct _pyb_timer_obj_t {
     uint16_t irq_flags;
     uint32_t peripheral;
     uint8_t id;
-} pyb_timer_obj_t;
+} machine_timer_obj_t;
 
-typedef struct _pyb_timer_channel_obj_t {
+typedef struct _machine_timer_channel_obj_t {
     mp_obj_base_t base;
-    struct _pyb_timer_obj_t *timer;
+    struct _machine_timer_obj_t *timer;
     uint32_t frequency;
     uint32_t period;
     uint16_t channel;
     uint16_t duty_cycle;
     uint8_t  polarity;
-} pyb_timer_channel_obj_t;
+} machine_timer_channel_obj_t;
 
 
 // void print_test(){
@@ -334,21 +334,21 @@ typedef struct _pyb_timer_channel_obj_t {
  Create Timer (from cc3200)
  *****************************************************************************/
 STATIC const mp_irq_methods_t machine_timer_channel_irq_methods;
-STATIC pyb_timer_obj_t machine_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = TIMER0_BASE, .peripheral = SYSCTL_PERIPH_TIMER0},
+STATIC machine_timer_obj_t machine_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = TIMER0_BASE, .peripheral = SYSCTL_PERIPH_TIMER0},
                                                              {.timer = TIMER1_BASE, .peripheral = SYSCTL_PERIPH_TIMER1},
                                                              {.timer = TIMER2_BASE, .peripheral = SYSCTL_PERIPH_TIMER2},
                                                              {.timer = TIMER3_BASE, .peripheral = SYSCTL_PERIPH_TIMER3},
                                                              {.timer = TIMER4_BASE, .peripheral = SYSCTL_PERIPH_TIMER4},
                                                              {.timer = TIMER5_BASE, .peripheral = SYSCTL_PERIPH_TIMER5}};
-STATIC const mp_obj_type_t pyb_timer_channel_type;
+STATIC const mp_obj_type_t machine_timer_channel_type;
 // !!!!!!!!!!!!!!!Real Pins needed to be added!!!!!!!!!!!!!!!!
-// STATIC const mp_obj_t pyb_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
+// STATIC const mp_obj_t machine_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
 
 void timer_init0 (void) {
-    mp_obj_list_init(&MP_STATE_PORT(pyb_timer_channel_obj_list), 0);
+    mp_obj_list_init(&MP_STATE_PORT(machine_timer_channel_obj_list), 0);
 }
 
-STATIC void timer_init (pyb_timer_obj_t *tim) {
+STATIC void timer_init (machine_timer_obj_t *tim) {
 
     SysCtlPeripheralEnable(tim->peripheral);
     SysCtlPeripheralReset(tim->peripheral);
@@ -358,7 +358,7 @@ STATIC void timer_init (pyb_timer_obj_t *tim) {
 }
 
 
-STATIC mp_obj_t pyb_timer_init_helper(pyb_timer_obj_t *tim, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+STATIC mp_obj_t machine_timer_init_helper(machine_timer_obj_t *tim, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_mode,         MP_ARG_REQUIRED | MP_ARG_INT, },
         { MP_QSTR_width,        MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 16} },
@@ -399,7 +399,7 @@ error:
     mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
 }
 
-STATIC mp_obj_t pyb_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+STATIC mp_obj_t machine_timer_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     // check arguments
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
 
@@ -409,7 +409,7 @@ STATIC mp_obj_t pyb_timer_make_new(const mp_obj_type_t *type, size_t n_args, siz
         mp_raise_OSError(MP_ENODEV);
     }
 
-    pyb_timer_obj_t *tim = &machine_timer_obj[timer_idx];
+    machine_timer_obj_t *tim = &machine_timer_obj[timer_idx];
     tim->base.type = &machine_timer_type;
     tim->id = timer_idx;
 
@@ -417,15 +417,15 @@ STATIC mp_obj_t pyb_timer_make_new(const mp_obj_type_t *type, size_t n_args, siz
         // start the peripheral
         mp_map_t kw_args;
         mp_map_init_fixed_table(&kw_args, n_kw, args + n_args);
-        pyb_timer_init_helper(tim, n_args - 1, args + 1, &kw_args);
+        machine_timer_init_helper(tim, n_args - 1, args + 1, &kw_args);
     }
     return (mp_obj_t)tim;
 }
 
-STATIC mp_obj_t pyb_timer_init(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
-    return pyb_timer_init_helper(args[0], n_args - 1, args + 1, kw_args);
+STATIC mp_obj_t machine_timer_init(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return machine_timer_init_helper(args[0], n_args - 1, args + 1, kw_args);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_timer_init_obj, 1, pyb_timer_init);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_init_obj, 1, machine_timer_init);
 
 /******************************************************************************
  DEFINE PRIVATE DATA
@@ -436,25 +436,26 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_timer_init_obj, 1, pyb_timer_init);
 /******************************************************************************
  DEFINE PRIVATE FUNCTIONS
  ******************************************************************************/
-STATIC void pyb_timer_channel_irq_enable (mp_obj_t self_in) {
-    pyb_timer_channel_obj_t *self = self_in;
+
+STATIC void machine_timer_channel_irq_enable (mp_obj_t self_in) {
+    machine_timer_channel_obj_t *self = self_in;
     MAP_TimerIntClear(self->timer->timer, self->timer->irq_trigger & self->channel);
     MAP_TimerIntEnable(self->timer->timer, self->timer->irq_trigger & self->channel);
 }
 
-STATIC void pyb_timer_channel_irq_disable (mp_obj_t self_in) {
-    pyb_timer_channel_obj_t *self = self_in;
+STATIC void machine_timer_channel_irq_disable (mp_obj_t self_in) {
+    machine_timer_channel_obj_t *self = self_in;
     MAP_TimerIntDisable(self->timer->timer, self->timer->irq_trigger & self->channel);
 }
 
-STATIC int pyb_timer_channel_irq_flags (mp_obj_t self_in) {
-    pyb_timer_channel_obj_t *self = self_in;
+STATIC int machine_timer_channel_irq_flags (mp_obj_t self_in) {
+    machine_timer_channel_obj_t *self = self_in;
     return self->timer->irq_flags;
 }
 
-STATIC pyb_timer_channel_obj_t *pyb_timer_channel_find (uint32_t timer, uint16_t channel_n) {
-    for (mp_uint_t i = 0; i < MP_STATE_PORT(pyb_timer_channel_obj_list).len; i++) {
-        pyb_timer_channel_obj_t *ch = ((pyb_timer_channel_obj_t *)(MP_STATE_PORT(pyb_timer_channel_obj_list).items[i]));
+STATIC machine_timer_channel_obj_t *machine_timer_channel_find (uint32_t timer, uint16_t channel_n) {
+    for (mp_uint_t i = 0; i < MP_STATE_PORT(machine_timer_channel_obj_list).len; i++) {
+        machine_timer_channel_obj_t *ch = ((machine_timer_channel_obj_t *)(MP_STATE_PORT(machine_timer_channel_obj_list).items[i]));
         // any 32-bit timer must be matched by any of its 16-bit versions
         if (ch->timer->timer == timer && ((ch->channel & TIMER_A) == channel_n || (ch->channel & TIMER_B) == channel_n)) {
             return ch;
@@ -463,10 +464,10 @@ STATIC pyb_timer_channel_obj_t *pyb_timer_channel_find (uint32_t timer, uint16_t
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t pyb_timer_channel_irq(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+STATIC mp_obj_t machine_timer_channel_irq(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     mp_arg_val_t args[mp_irq_INIT_NUM_ARGS];
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, mp_irq_INIT_NUM_ARGS, mp_irq_init_args, args);
-    pyb_timer_channel_obj_t *ch = pos_args[0];
+    machine_timer_channel_obj_t *ch = pos_args[0];
 
     // convert the priority to the correct value
     uint priority = args[1].u_int;
@@ -481,7 +482,7 @@ STATIC mp_obj_t pyb_timer_channel_irq(size_t n_args, const mp_obj_t *pos_args, m
     uint trigger = mp_obj_get_int(args[0].u_obj);
 
     // disable the callback first
-    pyb_timer_channel_irq_disable(ch);
+    machine_timer_channel_irq_disable(ch);
 
     uint8_t shift = (ch->channel == TIMER_B) ? 8 : 0;
     uint32_t _config = (ch->channel == TIMER_B) ? ((ch->timer->config & TIMER_B) >> 8) : (ch->timer->config & TIMER_A);
@@ -568,39 +569,39 @@ STATIC mp_obj_t pyb_timer_channel_irq(size_t n_args, const mp_obj_t *pos_args, m
     }
 
     // register the interrupt and configure the priority
-    MAP_IntPrioritySet(intregister, priority);
+    IntPrioritySet(intregister, priority);
     TimerIntRegister(ch->timer->timer, ch->channel, pfnHandler);
 
     // create the callback
     mp_obj_t _irq = mp_irq_new (ch, args[2].u_obj, &machine_timer_channel_irq_methods);
 
     // enable the callback before returning
-    pyb_timer_channel_irq_enable(ch);
+    machine_timer_channel_irq_enable(ch);
 
     return _irq;
 
 invalid_args:
     mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_timer_channel_irq_obj, 1, pyb_timer_channel_irq);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_channel_irq_obj, 1, machine_timer_channel_irq);
 
-// STATIC void pyb_timer_channel_remove (pyb_timer_channel_obj_t *ch) {
-//     pyb_timer_channel_obj_t *channel;
-//     if ((channel = pyb_timer_channel_find(ch->timer->timer, ch->channel))) {
-//         mp_obj_list_remove(&MP_STATE_PORT(pyb_timer_channel_obj_list), channel);
+// STATIC void machine_timer_channel_remove (machine_timer_channel_obj_t *ch) {
+//     machine_timer_channel_obj_t *channel;
+//     if ((channel = machine_timer_channel_find(ch->timer->timer, ch->channel))) {
+//         mp_obj_list_remove(&MP_STATE_PORT(machine_timer_channel_obj_list), channel);
 //         // unregister it with the sleep module
 //     }
 // }
 
-// STATIC void pyb_timer_channel_add (pyb_timer_channel_obj_t *ch) {
+// STATIC void machine_timer_channel_add (machine_timer_channel_obj_t *ch) {
 //     // remove it in case it already exists
-//     pyb_timer_channel_remove(ch);
-//     mp_obj_list_append(&MP_STATE_PORT(pyb_timer_channel_obj_list), ch);
+//     machine_timer_channel_remove(ch);
+//     mp_obj_list_append(&MP_STATE_PORT(machine_timer_channel_obj_list), ch);
 //     // register it with the sleep module
 // }
 
 // computes prescaler period and match value so timer triggers at freq-Hz
-STATIC uint32_t compute_prescaler_period_and_match_value(pyb_timer_channel_obj_t *ch, uint32_t *period_out, uint32_t *match_out) {
+STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_obj_t *ch, uint32_t *period_out, uint32_t *match_out) {
     uint32_t maxcount = (ch->channel == (TIMER_A | TIMER_B)) ? 0xFFFFFFFF : 0xFFFF;
     uint32_t prescaler;
     uint32_t period_c = (ch->frequency > 0) ? PYBTIMER_SRC_FREQ_HZ / ch->frequency : ((PYBTIMER_SRC_FREQ_HZ / 1000000) * ch->period);
@@ -634,25 +635,25 @@ error:
 }
 
 
-STATIC void timer_channel_init (pyb_timer_channel_obj_t *ch) {
+STATIC void m_timer_channel_init (machine_timer_channel_obj_t *ch) {
     // calculate the period, the prescaler and the match value
     uint32_t period_c;
     uint32_t match;
     uint32_t prescaler = compute_prescaler_period_and_match_value(ch, &period_c, &match);
 
     // set the prescaler
-    MAP_TimerPrescaleSet(ch->timer->timer, ch->channel, (prescaler < 0xFF) ? prescaler : 0);
+    TimerPrescaleSet(ch->timer->timer, ch->channel, (prescaler < 0xFF) ? prescaler : 0);
 
     // set the load value
-    MAP_TimerLoadSet(ch->timer->timer, ch->channel, period_c);
+    TimerLoadSet(ch->timer->timer, ch->channel, period_c);
 
     // configure the pwm if we are in such mode
     if ((ch->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
         // invert the timer output if required
-        MAP_TimerControlLevel(ch->timer->timer, ch->channel, (ch->polarity == PYBTIMER_POLARITY_NEG) ? true : false);
+        TimerControlLevel(ch->timer->timer, ch->channel, (ch->polarity == PYBTIMER_POLARITY_NEG) ? true : false);
         // set the match value (which is simply the duty cycle translated to ticks)
-        MAP_TimerMatchSet(ch->timer->timer, ch->channel, match);
-        MAP_TimerPrescaleMatchSet(ch->timer->timer, ch->channel, match >> 16);
+        TimerMatchSet(ch->timer->timer, ch->channel, match);
+        TimerPrescaleMatchSet(ch->timer->timer, ch->channel, match >> 16);
     }
 
 #ifdef DEBUG
@@ -664,23 +665,23 @@ STATIC void timer_channel_init (pyb_timer_channel_obj_t *ch) {
     MAP_TimerEnable(ch->timer->timer, ch->channel);
 }
 
-STATIC void timer_disable (pyb_timer_obj_t *tim) {
+STATIC void timer_disable (machine_timer_obj_t *tim) {
     // disable all timers and it's interrupts
     MAP_TimerDisable(tim->timer, TIMER_A | TIMER_B);
     MAP_TimerIntDisable(tim->timer, tim->irq_trigger);
     MAP_TimerIntClear(tim->timer, tim->irq_trigger);
-    // pyb_timer_channel_obj_t *ch;
+    // machine_timer_channel_obj_t *ch;
     // disable its channels
-    // if ((ch = pyb_timer_channel_find (tim->timer, TIMER_A))) {
+    // if ((ch = machine_timer_channel_find (tim->timer, TIMER_A))) {
     //     pyb_sleep_remove(ch);
     // }
-    // if ((ch = pyb_timer_channel_find (tim->timer, TIMER_B))) {
+    // if ((ch = machine_timer_channel_find (tim->timer, TIMER_B))) {
     //     pyb_sleep_remove(ch);
     // }
     SysCtlPeripheralDisable(tim->peripheral);
 }
 
-STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+STATIC mp_obj_t machine_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_freq,                MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_period,              MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
@@ -688,7 +689,7 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
         { MP_QSTR_duty_cycle,          MP_ARG_KW_ONLY  | MP_ARG_INT, {.u_int = 0} },
     };
 
-    pyb_timer_obj_t *tim = pos_args[0];
+    machine_timer_obj_t *tim = pos_args[0];
     mp_int_t channel_n = mp_obj_get_int(pos_args[1]);
 
     // verify that the timer has been already initialized
@@ -707,8 +708,8 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
     // if only the channel number is given return the previously
     // allocated channel (or None if no previous channel)
     if (n_args == 2 && kw_args->used == 0) {
-        pyb_timer_channel_obj_t *ch;
-        if ((ch = pyb_timer_channel_find(tim->timer, channel_n))) {
+        machine_timer_channel_obj_t *ch;
+        if ((ch = machine_timer_channel_find(tim->timer, channel_n))) {
             return ch;
         }
         return mp_const_none;
@@ -732,8 +733,8 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
     }
 
     // allocate a new timer channel
-    pyb_timer_channel_obj_t *ch = m_new_obj(pyb_timer_channel_obj_t);
-    ch->base.type = &pyb_timer_channel_type;
+    machine_timer_channel_obj_t *ch = m_new_obj(machine_timer_channel_obj_t);
+    ch->base.type = &machine_timer_channel_type;
     ch->timer = tim;
     ch->channel = channel_n;
 
@@ -743,13 +744,13 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
     ch->polarity = args[2].u_int;
     ch->duty_cycle = MIN(10000, MAX(0, args[3].u_int));
 
-    timer_channel_init(ch);
+    m_timer_channel_init(ch);
 
     // assign the pin
     // if ((ch->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
     //     uint32_t ch_idx = (ch->channel == TIMER_A) ? 0 : 1;
     //     // use the default pin if available
-    //     // mp_obj_t pin_o = (mp_obj_t)pyb_timer_pwm_pin[(ch->timer->id * 2) + ch_idx];
+    //     // mp_obj_t pin_o = (mp_obj_t)machine_timer_pwm_pin[(ch->timer->id * 2) + ch_idx];
     //     // if (pin_o != MP_OBJ_NULL) {
     //     //     pin_obj_t *pin = pin_find(pin_o);
     //         // pin_config (pin, pin_find_af_index(pin, PIN_FN_TIM, ch->timer->id, PIN_TYPE_TIM_PWM),
@@ -757,26 +758,45 @@ STATIC mp_obj_t pyb_timer_channel(size_t n_args, const mp_obj_t *pos_args, mp_ma
     //     }
     // }
     // // add the timer to the list
-    // pyb_timer_channel_add(ch);
+    // machine_timer_channel_add(ch);
 
     // return ch;
 
 error:
     mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(pyb_timer_channel_obj, 2, pyb_timer_channel);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_channel_obj, 2, machine_timer_channel);
 
-STATIC mp_obj_t pyb_timer_deinit(mp_obj_t self_in) {
-    pyb_timer_obj_t *self = self_in;
+STATIC mp_obj_t machine_timer_deinit(mp_obj_t self_in) {
+    machine_timer_obj_t *self = self_in;
     timer_disable(self);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_timer_deinit_obj, pyb_timer_deinit);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_timer_deinit_obj, machine_timer_deinit);
+
+// STATIC mp_obj_t machine_timer_channel_freq(size_t n_args, const mp_obj_t *args) {
+//     machine_timer_channel_obj_t *ch = args[0];
+//     if (n_args == 1) {
+//         // get
+//         return mp_obj_new_int(ch->frequency);
+//     } else {
+//         // set
+//         int32_t _frequency = mp_obj_get_int(args[1]);
+//         if (_frequency <= 0) {
+//             mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
+//         }
+//         ch->frequency = _frequency;
+//         ch->period = 1000000 / _frequency;
+//         machine_timer_channel_init(ch);
+//         return mp_const_none;
+//     }
+// }
+// STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_timer_channel_freq_obj, 1, 2, machine_timer_channel_freq);
 
 void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
-    pyb_timer_channel_obj_t *self;
+    machine_timer_channel_obj_t *self;
     uint32_t status;
-    if ((self = pyb_timer_channel_find(timer, channel))) {
+    if ((self = machine_timer_channel_find(timer, channel))) {
         status = MAP_TimerIntStatus(self->timer->timer, true) & self->channel;
         MAP_TimerIntClear(self->timer->timer, status);
         irq_handler(mp_irq_find(self));
@@ -786,9 +806,9 @@ void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
 
 
 STATIC const mp_rom_map_elem_t machine_timer_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_init),                    MP_ROM_PTR(&pyb_timer_init_obj) },
-    { MP_ROM_QSTR(MP_QSTR_deinit),                  MP_ROM_PTR(&pyb_timer_deinit_obj) },
-    { MP_ROM_QSTR(MP_QSTR_channel),                 MP_ROM_PTR(&pyb_timer_channel_obj) },
+    { MP_ROM_QSTR(MP_QSTR_init),                    MP_ROM_PTR(&machine_timer_init_obj) },
+    { MP_ROM_QSTR(MP_QSTR_deinit),                  MP_ROM_PTR(&machine_timer_deinit_obj) },
+    { MP_ROM_QSTR(MP_QSTR_channel),                 MP_ROM_PTR(&machine_timer_channel_obj) },
 
     // class constants
     { MP_ROM_QSTR(MP_QSTR_A),                       MP_ROM_INT(TIMER_A) },
@@ -807,33 +827,33 @@ STATIC MP_DEFINE_CONST_DICT(machine_timer_locals_dict, machine_timer_locals_dict
 const mp_obj_type_t machine_timer_type = {
     { &mp_type_type },
     .name = MP_QSTR_Timer,
-    // .print = pyb_timer_print,
-    .make_new = pyb_timer_make_new,
+    // .print = machine_timer_print,
+    .make_new = machine_timer_make_new,
     .locals_dict = (mp_obj_t)&machine_timer_locals_dict,
 };
 
 
 STATIC const mp_irq_methods_t machine_timer_channel_irq_methods = {
-    .init = pyb_timer_channel_irq,
-    .enable = pyb_timer_channel_irq_enable,
-    .disable = pyb_timer_channel_irq_disable,
-    .flags = pyb_timer_channel_irq_flags,
+    .init = machine_timer_channel_irq,
+    .enable = machine_timer_channel_irq_enable,
+    .disable = machine_timer_channel_irq_disable,
+    .flags = machine_timer_channel_irq_flags,
 };
 
 STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
     // instance methods
-    // { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&pyb_timer_channel_freq_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&pyb_timer_channel_period_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&pyb_timer_channel_duty_cycle_obj) },
-    { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&pyb_timer_channel_irq_obj) },
+    //  { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&machine_timer_channel_freq_obj) },
+    //  { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&machine_timer_channel_period_obj) },
+    //  { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&machine_timer_channel_duty_cycle_obj) },
+    { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&machine_timer_channel_irq_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(machine_timer_channel_locals_dict, machine_timer_channel_locals_dict_table);
 
 
-STATIC const mp_obj_type_t pyb_timer_channel_type = {
+STATIC const mp_obj_type_t machine_timer_channel_type = {
     { &mp_type_type },
     .name = MP_QSTR_TimerChannel,
-    // .print = pyb_timer_channel_print,
+    // .print = machine_timer_channel_print,
     .locals_dict = (mp_obj_t)&machine_timer_channel_locals_dict,
 };
 

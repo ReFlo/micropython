@@ -227,7 +227,7 @@ extern const struct _mp_obj_module_t mp_module_uos;
     \
     mp_obj_t test_callback_obj; \
     mp_obj_list_t mp_irq_obj_list; \
-    mp_obj_list_t pyb_timer_channel_obj_list;                             \
+    mp_obj_list_t machine_timer_channel_obj_list;                             \
     /* stdio is repeated on this UART object if it's not null */ \
     struct _machine_uart_obj_t *machine_stdio_uart; \
     \
