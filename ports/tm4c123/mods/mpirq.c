@@ -32,7 +32,7 @@
 #include "py/gc.h"
 #include "inc/hw_types.h"
 #include "driverlib/interrupt.h"
-#include "mpirq.h"
+#include "mods/mpirq.h"
 #include "driverlib/timer.h"
 #include "inc/hw_timer.h"
 
@@ -42,6 +42,7 @@
  ******************************************************************************/
 const mp_arg_t mp_irq_init_args[] = {
     { MP_QSTR_trigger,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    { MP_QSTR_priority,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1} }, // the lowest priority
     { MP_QSTR_handler,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = mp_const_none} },
 };
 
@@ -105,7 +106,7 @@ void mp_irq_remove (const mp_obj_t parent) {
 }
 
 
-void mp_irq_handler (mp_obj_t self_in) {
+void _irq_handler (mp_obj_t self_in) {
     mp_irq_obj_t *self = self_in;
     if (self && self->handler != mp_const_none) {
         // when executing code within a handler we must lock the GC to prevent

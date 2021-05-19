@@ -535,51 +535,51 @@ void GPIOH_Handler(void)
     Handle_EXTI_Irq(GPIOH_IntHndl);
 }
 
-void TIMER0A_IRQHandler(void) 
+void TIMER0AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER0_BASE, TIMER_A);
 }
-void TIMER0B_IRQHandler(void) 
+void TIMER0BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER0_BASE, TIMER_B);
 }
-void TIMER1A_IRQHandler(void) 
+void TIMER1AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER1_BASE, TIMER_A);
 }
-void TIMER1B_IRQHandler(void) 
+void TIMER1BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER1_BASE, TIMER_B);
 }
-void TIMER2A_IRQHandler(void) 
+void TIMER2AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER2_BASE, TIMER_A);
 }
-void TIMER2B_IRQHandler(void) 
+void TIMER2BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER2_BASE, TIMER_B);
 }
-void TIMER3A_IRQHandler(void) 
+void TIMER3AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER3_BASE, TIMER_A);
 }
-void TIMER3B_IRQHandler(void) 
+void TIMER3BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER3_BASE, TIMER_B);
 }
-void TIMER4A_IRQHandler(void) 
+void TIMER4AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER4_BASE, TIMER_A);
 }
-void TIMER4B_IRQHandler(void) 
+void TIMER4BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER4_BASE, TIMER_B);
 }
-void TIMER5A_IRQHandler(void) 
+void TIMER5AIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER5_BASE, TIMER_A);
 }
-void TIMER5B_IRQHandler(void) 
+void TIMER5BIntHandler(void) 
 {
     TIMERGenericIntHandler(TIMER5_BASE, TIMER_B);
 }

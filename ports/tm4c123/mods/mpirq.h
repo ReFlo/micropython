@@ -23,8 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef MICROPY_INCLUDED_CC3200_MISC_MPIRQ_H
-#define MICROPY_INCLUDED_CC3200_MISC_MPIRQ_H
+#ifndef MICROPY_INCLUDED_TM4C_MPIRQ_H
+#define MICROPY_INCLUDED_TM4C_MPIRQ_H
 
 /******************************************************************************
  DEFINE CONSTANTS
@@ -71,4 +71,4 @@ void mp_irq_remove (const mp_obj_t parent);
 void mp_irq_handler (mp_obj_t self_in);
 
 
-#endif // MICROPY_INCLUDED_CC3200_MISC_MPIRQ_H
+#endif // MICROPY_INCLUDED_TM4C_MISC_MPIRQ_H

@@ -37,7 +37,7 @@
 #include "inc/hw_memmap.h"
 #include "py/mphal.h"
 #include "handlers.h"
-#include "misc/mpirq.h"
+#include "mods/mpirq.h"
 #include "py/mperrno.h"
 
 typedef unsigned char byte;
@@ -759,7 +759,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(pyb_timer_deinit_obj, pyb_timer_deinit);
 void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
     pyb_timer_channel_obj_t *self;
     uint32_t status;
-    if ((self = pyb_timer_channel_find(timer, channel))) {      
+    if ((self = pyb_timer_channel_find(timer, channel))) {
         status = MAP_TimerIntStatus(self->timer->timer, true) & self->channel;
         MAP_TimerIntClear(self->timer->timer, status);
         mp_irq_handler(mp_irq_find(self));
