@@ -598,7 +598,8 @@ STATIC void machine_timer_channel_remove (machine_timer_channel_obj_t *ch) {
 STATIC void machine_timer_channel_add (machine_timer_channel_obj_t *ch) {
     // remove it in case it already exists
     machine_timer_channel_remove(ch);
-    mp_obj_list_append(&MP_STATE_PORT(mp_timer_channel_obj_list), ch);
+    mp_obj_list_t channel = MP_STATE_PORT(mp_timer_channel_obj_list);
+    mp_obj_list_append(&channel, ch);
     // register it with the sleep module
 }
 

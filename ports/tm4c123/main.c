@@ -485,7 +485,8 @@ soft_reset:
 
     dma_hw_init();
 
-    // timer_init0();
+    timer_init0();
+    irq_init0();
 
 
     // TODO Missing Repl Config
