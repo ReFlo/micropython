@@ -33,6 +33,8 @@
 #include "timer.h"
 #include "pin.h"
 #include "py/obj.h"
+#include "py/objlist.h"
+
 #include "driverlib/timer.h"
 #include "inc/hw_memmap.h"
 #include "py/mphal.h"
@@ -345,7 +347,7 @@ STATIC const mp_obj_type_t machine_timer_channel_type;
 // STATIC const mp_obj_t machine_timer_pwm_pin[8] = {pin_PA4, MP_OBJ_NULL, pin_PA5, MP_OBJ_NULL, MP_OBJ_NULL, pin_PA0, pin_PC1};
 
 void timer_init0 (void) {
-    mp_obj_list_init(&MP_STATE_PORT(machine_timer_channel_obj_list), 0);
+    mp_obj_list_init(&MP_STATE_PORT(mp_timer_channel_obj_list), 0);
 }
 
 STATIC void timer_init (machine_timer_obj_t *tim) {
@@ -454,8 +456,8 @@ STATIC int machine_timer_channel_irq_flags (mp_obj_t self_in) {
 }
 
 STATIC machine_timer_channel_obj_t *machine_timer_channel_find (uint32_t timer, uint16_t channel_n) {
-    for (mp_uint_t i = 0; i < MP_STATE_PORT(machine_timer_channel_obj_list).len; i++) {
-        machine_timer_channel_obj_t *ch = ((machine_timer_channel_obj_t *)(MP_STATE_PORT(machine_timer_channel_obj_list).items[i]));
+    for (mp_uint_t i = 0; i < MP_STATE_PORT(mp_timer_channel_obj_list).len; i++) {
+        machine_timer_channel_obj_t *ch = ((machine_timer_channel_obj_t *)(MP_STATE_PORT(mp_timer_channel_obj_list).items[i]));
         // any 32-bit timer must be matched by any of its 16-bit versions
         if (ch->timer->timer == timer && ((ch->channel & TIMER_A) == channel_n || (ch->channel & TIMER_B) == channel_n)) {
             return ch;
@@ -585,20 +587,20 @@ invalid_args:
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_channel_irq_obj, 1, machine_timer_channel_irq);
 
-// STATIC void machine_timer_channel_remove (machine_timer_channel_obj_t *ch) {
-//     machine_timer_channel_obj_t *channel;
-//     if ((channel = machine_timer_channel_find(ch->timer->timer, ch->channel))) {
-//         mp_obj_list_remove(&MP_STATE_PORT(machine_timer_channel_obj_list), channel);
-//         // unregister it with the sleep module
-//     }
-// }
+STATIC void machine_timer_channel_remove (machine_timer_channel_obj_t *ch) {
+    machine_timer_channel_obj_t *channel;
+    if ((channel = machine_timer_channel_find(ch->timer->timer, ch->channel))) {
+        mp_obj_list_remove(&MP_STATE_PORT(mp_timer_channel_obj_list), channel);
+        // unregister it with the sleep module
+    }
+}
 
-// STATIC void machine_timer_channel_add (machine_timer_channel_obj_t *ch) {
-//     // remove it in case it already exists
-//     machine_timer_channel_remove(ch);
-//     mp_obj_list_append(&MP_STATE_PORT(machine_timer_channel_obj_list), ch);
-//     // register it with the sleep module
-// }
+STATIC void machine_timer_channel_add (machine_timer_channel_obj_t *ch) {
+    // remove it in case it already exists
+    machine_timer_channel_remove(ch);
+    mp_obj_list_append(&MP_STATE_PORT(mp_timer_channel_obj_list), ch);
+    // register it with the sleep module
+}
 
 // computes prescaler period and match value so timer triggers at freq-Hz
 STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_obj_t *ch, uint32_t *period_out, uint32_t *match_out) {
@@ -758,9 +760,9 @@ STATIC mp_obj_t machine_timer_channel(size_t n_args, const mp_obj_t *pos_args, m
     //     }
     // }
     // // add the timer to the list
-    // machine_timer_channel_add(ch);
+    machine_timer_channel_add(ch);
 
-    // return ch;
+    return ch;
 
 error:
     mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));

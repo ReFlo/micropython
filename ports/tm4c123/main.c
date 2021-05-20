@@ -485,6 +485,9 @@ soft_reset:
 
     dma_hw_init();
 
+    // timer_init0();
+
+
     // TODO Missing Repl Config
 
 //     #if MICROPY_HW_ENABLE_USB

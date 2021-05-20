@@ -121,13 +121,13 @@ Timer Mode Enum
 
 //extern TIM_HandleTypeDef TIM5_Handle;
 
-// extern const mp_obj_type_t machine_timer_type;
+extern const mp_obj_type_t machine_timer_type;
 // void timer_irq_handler(uint tim_id);
 void TIMERGenericIntHandler(uint32_t timer, uint16_t channel);
 /******************************************************************************
  DECLARE EXPORTED DATA
  ******************************************************************************/
-extern const mp_obj_type_t machine_timer_type;
+
 
 /******************************************************************************
  DECLARE PUBLIC FUNCTIONS
