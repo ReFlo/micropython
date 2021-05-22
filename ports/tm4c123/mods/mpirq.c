@@ -28,6 +28,7 @@
 
 #include "py/mpconfig.h"
 #include "py/obj.h"
+#include "py/objlist.h"
 #include "py/runtime.h"
 #include "py/gc.h"
 #include "inc/hw_types.h"
