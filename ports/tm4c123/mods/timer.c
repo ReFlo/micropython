@@ -217,6 +217,39 @@ STATIC mp_obj_t machine_timer_init(size_t n_args, const mp_obj_t *args, mp_map_t
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_init_obj, 1, machine_timer_init);
 
+STATIC mp_obj_t machine_timer_channel_duty_cycle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    machine_timer_channel_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+    uint32_t new_duty_cycle = mp_obj_get_int(args[1]);
+    uint32_t period_c = (self->frequency > 0) ? PYBTIMER_SRC_FREQ_HZ / self->frequency : ((PYBTIMER_SRC_FREQ_HZ / 1000000) * self->period);
+    uint32_t match = 0;
+    if(new_duty_cycle>=0 && new_duty_cycle<=10000){
+        self->duty_cycle = new_duty_cycle;
+        //set new Match Value 
+         if (period_c > 0xFFFF) {
+            uint32_t match = (period_c * 100) / 10000;
+            match = period_c - ((match * self->duty_cycle) / 100);
+
+        } else {
+            match = period_c - ((period_c * self->duty_cycle) / 10000);
+    }
+             // configure the pwm if we are in such mode
+        if ((self->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
+        // invert the timer output if required
+        TimerControlLevel(self->timer->timer, self->channel, (self->polarity == PYBTIMER_POLARITY_NEG) ? true : false);
+        // set the match value (which is simply the duty cycle translated to ticks)
+        TimerMatchSet(self->timer->timer, self->channel, match);
+        TimerPrescaleMatchSet(self->timer->timer, self->channel, match >> 16);
+        
+        }
+    }
+    else {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid duty_cycle value"));
+    }
+    
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_channel_duty_cycle_obj,2, machine_timer_channel_duty_cycle);
+
 /******************************************************************************
  DEFINE PRIVATE DATA
  ******************************************************************************/
@@ -400,10 +433,16 @@ STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_o
     if (period_c == 0) {
         goto error;
     }
-
-    prescaler = period_c >> 16; // The prescaler is an extension of the timer counter
+    // //only 16 Bit now considered
+    // if(maxcount == 0xFFFF && period_c > 0xFFFF){
+    //     prescaler = period_c / 0xFFFF; // The prescaler is an extension of the timer counter
+    //     period_c = 0xFFFF;
+    //     *period_out = period_c;
+    // } else {
+    //     prescaler = 0;
+    // }
+    prescaler = period_c >> 16;
     *period_out = period_c;
-
     if (prescaler > 0xFF && maxcount == 0xFFFF) {
         goto error;
     }
@@ -414,6 +453,7 @@ STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_o
         if (period_c > 0xFFFF) {
             uint32_t match = (period_c * 100) / 10000;
             *match_out = period_c - ((match * ch->duty_cycle) / 100);
+
         } else {
             *match_out = period_c - ((period_c * ch->duty_cycle) / 10000);
         }
@@ -431,11 +471,14 @@ STATIC void m_timer_channel_init (machine_timer_channel_obj_t *ch) {
     uint32_t match;
     uint32_t prescaler = compute_prescaler_period_and_match_value(ch, &period_c, &match);
 
+
     // set the prescaler
     TimerPrescaleSet(ch->timer->timer, ch->channel, (prescaler < 0xFF) ? prescaler : 0);
+    
 
     // set the load value
     TimerLoadSet(ch->timer->timer, ch->channel, period_c);
+
 
     // configure the pwm if we are in such mode
     if ((ch->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
@@ -636,7 +679,7 @@ STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
     // instance methods
     //  { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&machine_timer_channel_freq_obj) },
     //  { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&machine_timer_channel_period_obj) },
-    //  { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&machine_timer_channel_duty_cycle_obj) },
+    { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&machine_timer_channel_duty_cycle_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&machine_timer_channel_irq_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(machine_timer_channel_locals_dict, machine_timer_channel_locals_dict_table);
