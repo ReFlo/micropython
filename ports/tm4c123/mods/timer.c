@@ -87,10 +87,11 @@ typedef unsigned int uint;
 #define PYBTIMER_TIMEOUT_TRIGGER                    (0x01)
 #define PYBTIMER_MATCH_TRIGGER                      (0x02)
 
-#define HAL_FCPU_MHZ                        16U
-#define HAL_FCPU_HZ                         5333333U
+// #define HAL_FCPU_MHZ                        16U
+// //#define HAL_FCPU_HZ                         1000000U * HAL_FCPU_MHZ  not used yet cause wrong clock is set
+// #define HAL_FCPU_HZ                         5333333U
 
-#define PYBTIMER_SRC_FREQ_HZ                HAL_FCPU_HZ
+// #define PYBTIMER_SRC_FREQ_HZ                HAL_FCPU_HZ
 
 
 /******************************************************************************
@@ -220,7 +221,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_timer_init_obj, 1, machine_timer_init)
 STATIC mp_obj_t machine_timer_channel_duty_cycle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
     machine_timer_channel_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     uint32_t new_duty_cycle = mp_obj_get_int(args[1]);
-    uint32_t period_c = (self->frequency > 0) ? PYBTIMER_SRC_FREQ_HZ / self->frequency : ((PYBTIMER_SRC_FREQ_HZ / 1000000) * self->period);
+    uint32_t sysclk = SysCtlClockGet();
+    uint32_t period_c = (self->frequency > 0) ? sysclk / self->frequency : ((sysclk / 1000000) * self->period);
     uint32_t match = 0;
     if(new_duty_cycle>=0 && new_duty_cycle<=10000){
         self->duty_cycle = new_duty_cycle;
@@ -427,7 +429,8 @@ STATIC void machine_timer_channel_add (machine_timer_channel_obj_t *ch) {
 STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_obj_t *ch, uint32_t *period_out, uint32_t *match_out) {
     uint32_t maxcount = (ch->channel == (TIMER_A | TIMER_B)) ? 0xFFFFFFFF : 0xFFFF;
     uint32_t prescaler;
-    uint32_t period_c = (ch->frequency > 0) ? PYBTIMER_SRC_FREQ_HZ / ch->frequency : ((PYBTIMER_SRC_FREQ_HZ / 1000000) * ch->period);
+    uint32_t sysclk = SysCtlClockGet();
+    uint32_t period_c = (ch->frequency > 0) ? sysclk / ch->frequency : ((sysclk / 1000000) * ch->period);
 
     period_c = MAX(1, period_c) - 1;
     if (period_c == 0) {
