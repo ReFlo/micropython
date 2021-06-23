@@ -87,8 +87,8 @@ typedef unsigned int uint;
 #define PYBTIMER_TIMEOUT_TRIGGER                    (0x01)
 #define PYBTIMER_MATCH_TRIGGER                      (0x02)
 
-#define HAL_FCPU_MHZ                        80U
-#define HAL_FCPU_HZ                         (1000000U * HAL_FCPU_MHZ)
+#define HAL_FCPU_MHZ                        16U
+#define HAL_FCPU_HZ                         5333333U
 
 #define PYBTIMER_SRC_FREQ_HZ                HAL_FCPU_HZ
 
@@ -130,7 +130,7 @@ STATIC machine_timer_obj_t machine_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = 
                                                              {.timer = TIMER4_BASE, .peripheral = SYSCTL_PERIPH_TIMER4},
                                                              {.timer = TIMER5_BASE, .peripheral = SYSCTL_PERIPH_TIMER5}};
 STATIC const mp_obj_type_t machine_timer_channel_type;
-STATIC const pin_obj_t *machine_timer_pwm_pin[12] = {pin_PB6, pin_PB7, pin_PB4, pin_PB5, pin_PB0, pin_PB1, pin_PB2, pin_PB3, pin_PC0, pin_PC1, pin_PC2, pin_PC3};
+STATIC const pin_obj_t *machine_timer_pwm_pin[12] = {pin_PB6, pin_PF1, pin_PB4, pin_PB5, pin_PB0, pin_PB1, pin_PB2, pin_PB3, pin_PC0, pin_PC1, pin_PC2, pin_PC3};
 
 
 
@@ -434,13 +434,7 @@ STATIC uint32_t compute_prescaler_period_and_match_value(machine_timer_channel_o
         goto error;
     }
     // //only 16 Bit now considered
-    // if(maxcount == 0xFFFF && period_c > 0xFFFF){
-    //     prescaler = period_c / 0xFFFF; // The prescaler is an extension of the timer counter
-    //     period_c = 0xFFFF;
-    //     *period_out = period_c;
-    // } else {
-    //     prescaler = 0;
-    // }
+ 
     prescaler = period_c >> 16;
     *period_out = period_c;
     if (prescaler > 0xFF && maxcount == 0xFFFF) {
@@ -470,8 +464,20 @@ STATIC void m_timer_channel_init (machine_timer_channel_obj_t *ch) {
     uint32_t period_c;
     uint32_t match;
     uint32_t prescaler = compute_prescaler_period_and_match_value(ch, &period_c, &match);
+    period_c = 0xFFFF;
+    
+    // #### Debug stuff to get right source und period 
+    // uint32_t clksrc;
+    // uint32_t clk;
+    // clksrc = TimerClockSourceGet(ch->timer->timer);
+    // clk = SysCtlClockGet();
+    // if (clk != 0xF42400){
+    //     mp_hal_stdout_tx_str("Wrong Clock!\r\n"); 
+    // }
 
 
+    TimerClockSourceSet(ch->timer->timer,TIMER_CLOCK_SYSTEM);
+    
     // set the prescaler
     TimerPrescaleSet(ch->timer->timer, ch->channel, (prescaler < 0xFF) ? prescaler : 0);
     
@@ -609,24 +615,24 @@ STATIC mp_obj_t machine_timer_deinit(mp_obj_t self_in) {
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_timer_deinit_obj, machine_timer_deinit);
 
-// STATIC mp_obj_t machine_timer_channel_freq(size_t n_args, const mp_obj_t *args) {
-//     machine_timer_channel_obj_t *ch = args[0];
-//     if (n_args == 1) {
-//         // get
-//         return mp_obj_new_int(ch->frequency);
-//     } else {
-//         // set
-//         int32_t _frequency = mp_obj_get_int(args[1]);
-//         if (_frequency <= 0) {
-//             mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
-//         }
-//         ch->frequency = _frequency;
-//         ch->period = 1000000 / _frequency;
-//         machine_timer_channel_init(ch);
-//         return mp_const_none;
-//     }
-// }
-// STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_timer_channel_freq_obj, 1, 2, machine_timer_channel_freq);
+STATIC mp_obj_t machine_timer_channel_freq(size_t n_args, const mp_obj_t *args) {
+    machine_timer_channel_obj_t *ch = args[0];
+    if (n_args == 1) {
+        // get
+        return mp_obj_new_int(ch->frequency);
+    } else {
+        // set
+        int32_t _frequency = mp_obj_get_int(args[1]);
+        if (_frequency <= 0) {
+            mp_raise_ValueError(MP_ERROR_TEXT("invalid argument(s) value"));
+        }
+        ch->frequency = _frequency;
+        ch->period = 1000000 / _frequency;
+        m_timer_channel_init(ch);
+        return mp_const_none;
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_timer_channel_freq_obj, 1, 2, machine_timer_channel_freq);
 
 void TIMERGenericIntHandler(uint32_t timer, uint16_t channel) {
     machine_timer_channel_obj_t *self;
@@ -677,7 +683,7 @@ STATIC const mp_irq_methods_t machine_timer_channel_irq_methods = {
 
 STATIC const mp_rom_map_elem_t machine_timer_channel_locals_dict_table[] = {
     // instance methods
-    //  { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&machine_timer_channel_freq_obj) },
+     { MP_ROM_QSTR(MP_QSTR_freq),                 MP_ROM_PTR(&machine_timer_channel_freq_obj) },
     //  { MP_ROM_QSTR(MP_QSTR_period),               MP_ROM_PTR(&machine_timer_channel_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_duty_cycle),           MP_ROM_PTR(&machine_timer_channel_duty_cycle_obj) },
     { MP_ROM_QSTR(MP_QSTR_irq),                  MP_ROM_PTR(&machine_timer_channel_irq_obj) },
