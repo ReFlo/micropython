@@ -131,7 +131,7 @@ STATIC machine_timer_obj_t machine_timer_obj[MICROPY_HW_MAX_TIMER] = {{.timer = 
                                                              {.timer = TIMER4_BASE, .peripheral = SYSCTL_PERIPH_TIMER4},
                                                              {.timer = TIMER5_BASE, .peripheral = SYSCTL_PERIPH_TIMER5}};
 STATIC const mp_obj_type_t machine_timer_channel_type;
-STATIC const pin_obj_t *machine_timer_pwm_pin[12] = {pin_PB6, pin_PF1, pin_PB4, pin_PB5, pin_PB0, pin_PB1, pin_PB2, pin_PB3, pin_PC0, pin_PC1, pin_PC2, pin_PC3};
+STATIC const pin_obj_t *machine_timer_pwm_pin[12] = {pin_PB6, pin_PB7, pin_PB4, pin_PB5, pin_PB0, pin_PB1, pin_PB2, pin_PB3, pin_PC0, pin_PC1, pin_PC2, pin_PC3};
 
 
 
@@ -223,18 +223,20 @@ STATIC mp_obj_t machine_timer_channel_duty_cycle(size_t n_args, const mp_obj_t *
     uint32_t new_duty_cycle = mp_obj_get_int(args[1]);
     uint32_t sysclk = SysCtlClockGet();
     uint32_t period_c = (self->frequency > 0) ? sysclk / self->frequency : ((sysclk / 1000000) * self->period);
-    uint32_t match = 0;
+    uint32_t match;
     if(new_duty_cycle>=0 && new_duty_cycle<=10000){
         self->duty_cycle = new_duty_cycle;
         //set new Match Value 
          if (period_c > 0xFFFF) {
-            uint32_t match = (period_c * 100) / 10000;
+            match = (period_c * 100) / 10000;
             match = period_c - ((match * self->duty_cycle) / 100);
 
-        } else {
+        } 
+        else {  
             match = period_c - ((period_c * self->duty_cycle) / 10000);
-    }
-             // configure the pwm if we are in such mode
+        }
+             
+        // configure the pwm if we are in such mode
         if ((self->timer->config & 0x0F) == TIMER_CFG_A_PWM) {
         // invert the timer output if required
         TimerControlLevel(self->timer->timer, self->channel, (self->polarity == PYBTIMER_POLARITY_NEG) ? true : false);
