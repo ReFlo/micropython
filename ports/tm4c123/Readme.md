@@ -17,6 +17,7 @@
    - [Pin](#pin)
    - [UART](#uart)
    - [SPI](#spi)
+   - [Timer](#timer)
 
 
 ## Build
