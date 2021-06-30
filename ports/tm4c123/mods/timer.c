@@ -469,7 +469,7 @@ STATIC void m_timer_channel_init (machine_timer_channel_obj_t *ch) {
     uint32_t period_c;
     uint32_t match;
     uint32_t prescaler = compute_prescaler_period_and_match_value(ch, &period_c, &match);
-    period_c = 0xFFFF;
+    // period_c = 0xFFFF;
     
     // #### Debug stuff to get right source und period 
     // uint32_t clksrc;
