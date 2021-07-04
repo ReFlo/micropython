@@ -68,9 +68,6 @@
 #define PYBTIMER_TIMEOUT_TRIGGER                    (0x01)
 #define PYBTIMER_MATCH_TRIGGER                      (0x02)
 
-#define HAL_FCPU_MHZ                                80U
-#define HAL_FCPU_HZ                                 (1000000U * HAL_FCPU_MHZ)
-
 #define PYBTIMER_SRC_FREQ_HZ                        HAL_FCPU_HZ
 
 /******************************************************************************
