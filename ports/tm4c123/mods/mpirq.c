@@ -189,4 +189,3 @@ const mp_obj_type_t mp_irq_type = {
     .call = mp_irq_call,
     .locals_dict = (mp_obj_t)&mp_irq_locals_dict,
 };
-

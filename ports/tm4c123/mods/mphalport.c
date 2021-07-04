@@ -164,12 +164,12 @@ bool mp_hal_pin_config_alt(mp_hal_pin_obj_t pin, uint8_t fn, uint8_t unit) {
                 dir = GPIO_DIR_MODE_IN;
             }
         break;
-        case PIN_FN_UART:
-        case PIN_FN_SSI:
-        case PIN_FN_MTRL:
         case PIN_FN_TIM:
             strength = GPIO_STRENGTH_4MA;
             break;
+        case PIN_FN_UART:
+        case PIN_FN_SSI:
+        case PIN_FN_MTRL:
         case PIN_FN_WTIM:
         case PIN_FN_TR:
         default:
